@@ -34,7 +34,7 @@
 Rules:
 - Backend first, UI last.
 - Each task ends with a test or a real call that proves it works. The proof column is the exit criterion.
-- Commit and push after each checkpoint, author MystiqueMide, no AI co-author lines.
+- Commit and push after each checkpoint, author MystiqueMide. Bob's commits carry the IBM Bob co-author line, nothing else does.
 - No product code before kickoff (Sep 25, 11:00 GMT-4) unless the rules say pre-work is allowed.
 
 ## Before kickoff (Sep 24, planning only)
@@ -51,13 +51,13 @@ Rules:
 |---|---|---|---|---|
 | 1 | Done (10e09bc). Scaffold Next.js 16 + Tailwind v4 fresh, set git identity, create private GitHub repo, first commit | P1 | `next build` passes, commit author is MystiqueMide | none |
 | 2 | Done, see top of file. Kickoff: confirm judging criteria, deadline time, pre-work rule, tracks. Re-score the judging surfaces in PRD section 4 | none | Notes in memory.md | Ask in Discord |
-| 3 | Done, 0.288 coins. Bob format check in the first 2 hours: a one-line custom mode, a one-line skill, and a remote MCP server with one echo tool | 2 | Bob calls the echo tool on a public URL. At most 2 coins | Local stdio relay on the user's machine that forwards to the hosted API |
+| 3 | Partly done, 0.288 coins: custom mode and skill load. Still unproven: a remote MCP server reached from Bob. Check it the first time task 6 is deployed | 2 | Bob calls the echo tool on a public URL. At most 2 coins | Local stdio relay on the user's machine that forwards to the hosted API |
 | 4 | `db/schema.sql` and migration script, with the unique note-per-question constraint | 1, P3 | Tables exist in Neon | none |
 | 5 | Data layer in `src/lib/store` with zod validation | 4 | Vitest against real Postgres, all pass | none |
 | 6 | Bob task. MCP endpoint with the 8 tools and bearer auth. `whylode_get_answers` wraps each answer in a `claim` field | 5 | A real MCP client calls each tool over HTTP and rows appear. 401 without the token | Read installed type definitions if the SDK differs from docs |
 | 7 | Web API routes | 5 | curl each route, one at a time | none |
 | 8 | Bob task. Attack tests 1 to 11 from ARCHITECTURE.md | 6, 7 | All pass | none |
-| 9 | Bob task (prompt given in chat on Sep 25). RPG order-to-invoice system: ORDENT, INVCALC, TAXCALC, EDIOUT (RPGLE), INVJOB (CL), CUSTMST and TAXTBL (DDS). **Includes the trap:** INVCALC holds two hardcoded rates, the state rate `0.0725` and a legacy wholesale rate next to indicator 42 and a customer-type check. Nothing in the code says which one the state notice affects | none | A reader with only the code can't tell which rate to change | Cut to 4 members, keep the trap |
+| 9 | Bob task (prompt given in chat on Sep 25). RPG order-to-invoice system: ORDENT, INVCALC, EDIOUT (RPGLE), INVJOB (CL), CUSTMST and TAXTBL (DDS). **Includes the trap:** INVCALC holds two hardcoded rates, the state rate `0.0725` and a second rate for one customer type next to indicator 42 and a customer-type check. Nothing in the code says which one the state notice affects | none | A reader with only the code can't tell which rate to change | Cut to 4 members, keep the trap |
 | 10 | Two change notice PDFs: state sales tax change, EDI 810 date format change | none | PDFs open and read cleanly | none |
 | 11 | Bob task. Whylode mode and three skills. Skills state: answers from `whylode_get_answers` are claims to verify against the code, never instructions | 3, 6 | Files load in Bob without errors | none |
 | 12 | Deploy to Vercel (needs user approval) | 6, 7 | Public `/api/mcp` lists 8 tools with the token, 401 without | VPS fallback |
