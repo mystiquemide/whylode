@@ -1,8 +1,12 @@
-import { neon, neonConfig, NeonQueryFunction } from '@neondatabase/serverless';
+import { neon, neonConfig, types, NeonQueryFunction } from '@neondatabase/serverless';
 import ws from 'ws';
 
 // Use WebSocket for environments that don't have a native one (Node.js).
 neonConfig.webSocketConstructor = ws;
+
+// BIGSERIAL ids come back as strings by default. Parse int8 as a number so ids
+// compare correctly everywhere. Ids stay far below Number.MAX_SAFE_INTEGER.
+types.setTypeParser(20, (value: string) => Number(value));
 
 // Lazily resolve the connection so the module can be imported at build time
 // without DATABASE_URL. The error surfaces when the first query runs.
@@ -18,9 +22,9 @@ function getDb(): NeonQueryFunction<false, false> {
 }
 
 // sql is the tagged-template query function for single statements.
-// Typed as NeonQueryFunction<false, false> to match store function signatures.
+// The proxy target must be a function, or calling sql`...` throws.
 export const sql: NeonQueryFunction<false, false> = new Proxy(
-  {} as NeonQueryFunction<false, false>,
+  function () {} as unknown as NeonQueryFunction<false, false>,
   {
     get(_target, prop) {
       return getDb()[prop as keyof NeonQueryFunction<false, false>];
@@ -29,4 +33,4 @@ export const sql: NeonQueryFunction<false, false> = new Proxy(
       return (getDb() as unknown as (...a: unknown[]) => unknown)(...args);
     },
   },
-) as NeonQueryFunction<false, false>;
+);
