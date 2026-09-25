@@ -32,6 +32,13 @@ export async function answerQuestion(
     UPDATE questions SET state = 'answered', answered_at = now() WHERE id = ${question_id}
   `;
 
+  await db`
+    UPDATE trace_lines SET state = 'answered', note_id = ${note_id}
+    WHERE state IN ('traced', 'asked') AND program = ${q.program}
+      AND line_no BETWEEN ${q.line_start} AND ${q.line_end}
+      AND clause_id IN (SELECT id FROM clauses WHERE change_id = ${q.change_id})
+  `;
+
   await insertEvent(q.change_id, 'question_answered', { question_id, note_id }, db);
 
   return { note_id };

@@ -15,6 +15,11 @@ export async function flagConflict(
     RETURNING id::int AS id
   `;
   const conflict_id = (rows[0] as { id: number }).id;
+  await db`
+    UPDATE trace_lines SET state = 'conflict'
+    WHERE note_id = ${note_id}
+      AND clause_id IN (SELECT id FROM clauses WHERE change_id = ${change_id})
+  `;
   await insertEvent(change_id, 'conflict_flagged', { conflict_id, note_id }, db);
   return { conflict_id };
 }
@@ -30,6 +35,12 @@ export async function reviewConflict(
   if (!conflict) throw new Error(`Conflict ${conflict_id} not found`);
 
   await db`UPDATE conflicts SET state = 'reviewed' WHERE id = ${conflict_id}`;
+  await db`
+    UPDATE trace_lines SET state = 'answered'
+    WHERE state = 'conflict'
+      AND note_id = (SELECT note_id FROM conflicts WHERE id = ${conflict_id})
+      AND clause_id IN (SELECT id FROM clauses WHERE change_id = ${conflict.change_id})
+  `;
   await insertEvent(conflict.change_id, 'conflict_reviewed', { conflict_id }, db);
 }
 

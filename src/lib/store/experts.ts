@@ -34,6 +34,12 @@ export async function createExpert(
       RETURNING id::int AS id
     `;
     question_ids.push((rows[0] as { id: number }).id);
+    await db`
+      UPDATE trace_lines SET state = 'asked'
+      WHERE state = 'traced' AND program = ${q.program}
+        AND line_no BETWEEN ${q.line_start} AND ${q.line_end}
+        AND clause_id IN (SELECT id FROM clauses WHERE change_id = ${change_id})
+    `;
   }
 
   await insertEvent(change_id, 'expert_asked', { expert_id, expert_name: name, question_count: questions.length }, db);
