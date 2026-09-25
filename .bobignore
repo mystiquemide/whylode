@@ -6,3 +6,7 @@
 node_modules/
 .next/
 *.local.md
+
+# Planning docs describe the fixture trap. Hidden from Bob during product runs.
+docs/
+memory.md

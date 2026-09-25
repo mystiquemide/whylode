@@ -29,7 +29,7 @@ c. If yes: the claim supports the change. Note it as a `reason` when you
 d. If no, or if the claim cannot be confirmed from the code:
    Call `whylode_flag_conflict` with the `change_id`, the `note_id` of the
    claim, a `claim` string (copy the claim text), and a `code_fact` string
-   (describe what the code actually shows). Stop — do not submit the draft.
+   (describe what the code actually shows). Stop, do not submit the draft.
    Tell the developer there is a conflict that needs review on the web app.
 
 **3. Build the diff.**
@@ -51,7 +51,7 @@ Call `whylode_submit_draft` with:
   that requires it.
 
 The tool will refuse if any question or conflict is still open. This is a
-server-enforced constraint — it cannot be bypassed.
+server-enforced constraint, it cannot be bypassed.
 
 **5. Tell the developer.**
 Report the `draft_id` and say:

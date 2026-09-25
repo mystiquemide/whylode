@@ -16,7 +16,7 @@ For each clause, work through these steps in order:
 Call `whylode_memoir_lookup` with the program name and the line range you are
 about to trace. If notes come back, those lines are already known. Pass the
 `note_id` of each matching note as `known_note_id` when you record the trace.
-Known lines increase `lines_reused` — this is one of the headline demo numbers.
+Known lines increase `lines_reused`, this is one of the headline demo numbers.
 
 **2. Read the source.**
 Open the relevant RPG, CL, or DDS file. Identify every line that implements
@@ -32,9 +32,9 @@ Set `confidence` honestly for each line:
 
 | Confidence | Meaning |
 |---|---|
-| 0.9 – 1.0 | The rule is directly visible in this line. You are certain. |
-| 0.5 – 0.89 | The line is plausibly related but context is ambiguous. |
-| 0.0 – 0.49 | You cannot determine the intent from the code alone. |
+| 0.9 - 1.0 | The rule is directly visible in this line. You are certain. |
+| 0.5 - 0.89 | The line is plausibly related but context is ambiguous. |
+| 0.0 - 0.49 | You cannot determine the intent from the code alone. |
 
 **4. Decide next step.**
 - If **all lines are 0.9+**: proceed to the **whylode-draft** skill.
