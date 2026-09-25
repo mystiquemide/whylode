@@ -15,11 +15,13 @@ export async function POST(req: NextRequest) {
   return handleMcpRequest(req);
 }
 
+// Stateless server with no server-to-client stream. Per the MCP streamable HTTP
+// spec, answer GET with 405 so clients don't hold a stream open until timeout.
 export async function GET(req: NextRequest) {
   if (!bearerOk(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  return handleMcpRequest(req);
+  return new NextResponse(null, { status: 405, headers: { Allow: 'POST, DELETE' } });
 }
 
 export async function DELETE(req: NextRequest) {
