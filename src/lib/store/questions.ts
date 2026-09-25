@@ -78,3 +78,13 @@ export async function reassignQuestion(
   `;
   await insertEvent(q.change_id, 'question_reassigned', { question_id, new_expert_name }, db);
 }
+
+/** Returns the question only if it belongs to the given expert, else null. */
+export async function getQuestionForExpert(
+  question_id: number,
+  expert_id: number,
+  db: NeonQueryFunction<false, false> = defaultSql,
+): Promise<Awaited<ReturnType<typeof getQuestion>>> {
+  const q = await getQuestion(question_id, db);
+  return q && q.expert_id === expert_id ? q : null;
+}

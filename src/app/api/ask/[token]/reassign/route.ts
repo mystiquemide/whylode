@@ -2,7 +2,7 @@ import { baseUrl } from '@/lib/base-url';
 import { getExpertByToken } from '@/lib/store/experts';
 import { reassignQuestion } from '@/lib/store/questions';
 import { createExpert } from '@/lib/store/experts';
-import { getQuestion } from '@/lib/store/questions';
+import { getQuestionForExpert } from '@/lib/store/questions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(
@@ -28,9 +28,9 @@ export async function POST(
     return NextResponse.json({ error: 'new_expert_name is required' }, { status: 400 });
   }
 
-  // Verify the question belongs to this expert's change.
-  const q = await getQuestion(question_id);
-  if (!q || q.change_id !== expert.change_id) {
+  // A token may only reassign its own expert's questions.
+  const q = await getQuestionForExpert(question_id, expert.id);
+  if (!q) {
     return NextResponse.json({ error: 'Question not found' }, { status: 404 });
   }
 

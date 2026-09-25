@@ -164,7 +164,9 @@ export function createMcpServer() {
         line_no:   z.number().int().positive(),
         note_id:   z.number().int().positive().optional(),
         clause_id: z.number().int().positive().optional(),
-      })).describe('Per-line reasons linking each changed line to a note or clause'),
+        action:    z.enum(['changed', 'kept']).optional()
+          .describe("'changed' for lines the diff edits (default), 'kept' for traced lines deliberately left unchanged"),
+      })).describe('One reason per line: every changed line, and every traced line kept unchanged. Cite note_id when an expert answer is the reason.'),
     },
     async ({ change_id, diff, reasons }) =>
       runTool(() => submitDraft(change_id, diff, reasons)),

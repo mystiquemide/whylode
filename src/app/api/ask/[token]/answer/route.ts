@@ -1,5 +1,6 @@
 import { getExpertByToken } from '@/lib/store/experts';
 import { answerQuestion } from '@/lib/store/notes';
+import { getQuestionForExpert } from '@/lib/store/questions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(
@@ -19,6 +20,12 @@ export async function POST(
   }
   if (!answer) {
     return NextResponse.json({ error: 'answer is required' }, { status: 400 });
+  }
+
+  // A token may only answer its own expert's questions.
+  const q = await getQuestionForExpert(question_id, expert.id);
+  if (!q) {
+    return NextResponse.json({ error: 'Question not found' }, { status: 404 });
   }
 
   try {

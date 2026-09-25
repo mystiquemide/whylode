@@ -76,6 +76,7 @@ export const DraftReasonInput = z.object({
   line_no:   z.number().int().positive(),
   note_id:   z.number().int().positive().optional(),
   clause_id: z.number().int().positive().optional(),
+  action:    z.enum(['changed', 'kept']).optional(),
 });
 
 export const SubmitDraftInput = z.object({

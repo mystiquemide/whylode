@@ -5,7 +5,7 @@ import { insertEvent } from './events';
 export async function submitDraft(
   change_id: number,
   diff: string,
-  reasons: Array<{ file: string; line_no: number; note_id?: number; clause_id?: number }>,
+  reasons: Array<{ file: string; line_no: number; note_id?: number; clause_id?: number; action?: 'changed' | 'kept' }>,
   db: NeonQueryFunction<false, false> = defaultSql,
 ): Promise<{ draft_id: number }> {
   // Refuse while any question is open.
@@ -32,9 +32,10 @@ export async function submitDraft(
   for (const r of reasons) {
     const note_id = r.note_id ?? null;
     const clause_id = r.clause_id ?? null;
+    const action = r.action ?? 'changed';
     await db`
-      INSERT INTO draft_reasons (draft_id, file, line_no, note_id, clause_id)
-      VALUES (${draft_id}, ${r.file}, ${r.line_no}, ${note_id}, ${clause_id})
+      INSERT INTO draft_reasons (draft_id, file, line_no, note_id, clause_id, action)
+      VALUES (${draft_id}, ${r.file}, ${r.line_no}, ${note_id}, ${clause_id}, ${action})
     `;
   }
 
@@ -61,13 +62,35 @@ export async function approveDraft(
   await insertEvent(draft.change_id, 'draft_approved', { draft_id, decided_by }, db);
 }
 
+export type DraftReason = {
+  file: string;
+  line_no: number;
+  action: 'changed' | 'kept';
+  note_id: number | null;
+  note_text: string | null;
+  note_author: string | null;
+  clause_id: number | null;
+  clause_text: string | null;
+};
+
 export async function getDraft(
   change_id: number,
   db: NeonQueryFunction<false, false> = defaultSql,
-): Promise<{ id: number; diff: string; state: string; decided_by: string | null } | null> {
+): Promise<{ id: number; diff: string; state: string; decided_by: string | null; decided_at: string | null; reasons: DraftReason[] } | null> {
   const rows = await db`
-    SELECT id, diff, state, decided_by FROM drafts WHERE change_id = ${change_id}
+    SELECT id, diff, state, decided_by, decided_at FROM drafts WHERE change_id = ${change_id}
     ORDER BY id DESC LIMIT 1
   `;
-  return (rows[0] as { id: number; diff: string; state: string; decided_by: string | null }) ?? null;
+  const draft = rows[0] as { id: number; diff: string; state: string; decided_by: string | null; decided_at: string | null } | undefined;
+  if (!draft) return null;
+  const reasons = await db`
+    SELECT r.file, r.line_no, r.action, r.note_id, n.text AS note_text, n.author AS note_author,
+           r.clause_id, c.text AS clause_text
+    FROM draft_reasons r
+    LEFT JOIN notes n ON n.id = r.note_id
+    LEFT JOIN clauses c ON c.id = r.clause_id
+    WHERE r.draft_id = ${draft.id}
+    ORDER BY r.file, r.line_no
+  `;
+  return { ...draft, reasons: reasons as DraftReason[] };
 }

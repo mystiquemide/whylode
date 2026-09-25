@@ -105,6 +105,10 @@ CREATE TABLE IF NOT EXISTS draft_reasons (
   clause_id BIGINT REFERENCES clauses(id)  ON DELETE SET NULL
 );
 
+-- 'changed' lines are edited by the diff, 'kept' lines were deliberately left alone.
+ALTER TABLE draft_reasons ADD COLUMN IF NOT EXISTS action TEXT NOT NULL DEFAULT 'changed'
+  CHECK (action IN ('changed', 'kept'));
+
 CREATE TABLE IF NOT EXISTS events (
   id        BIGSERIAL PRIMARY KEY,
   change_id BIGINT      NOT NULL REFERENCES changes(id) ON DELETE CASCADE,

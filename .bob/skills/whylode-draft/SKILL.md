@@ -46,9 +46,15 @@ Do not change lines whose only justification is an unverified claim.
 Call `whylode_submit_draft` with:
 - `change_id`
 - `diff`: the unified diff
-- `reasons`: an array of `{ file, line_no, note_id?, clause_id? }` for every
-  changed line. Link each line to the note that justifies it and/or the clause
-  that requires it.
+- `reasons`: one entry `{ file, line_no, action, note_id?, clause_id? }` for
+  every line you traced:
+  - `action: "changed"` for each line the diff edits. Link the clause that
+    requires it, and the note if an expert answer confirmed it.
+  - `action: "kept"` for each traced line you deliberately left unchanged.
+    Link the note whose answer is the reason it stays, and the clause that
+    protects it if there is one. A kept line with an expert answer behind it
+    must always cite that `note_id`. This is how the approver sees that the
+    answer prevented a wrong edit.
 
 The tool will refuse if any question or conflict is still open. This is a
 server-enforced constraint, it cannot be bypassed.
