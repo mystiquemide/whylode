@@ -1,10 +1,11 @@
 /**
  * Test helper: creates an isolated Postgres schema per test run,
  * applies db/schema.sql inside it, and returns a neon sql function scoped
- * to that schema via search_path. Call teardown() at the end of the suite.
+ * to that schema. Call teardown() at the end of the suite.
  *
- * Strategy: each store function accepts an optional `db` parameter.
- * We pass a wrapped sql function that sets search_path before each query.
+ * Strategy: clone the DATABASE_URL and append ?options=--search_path%3D<schema>
+ * so every connection made by neon() lands in the test schema by default.
+ * Each DDL statement is run individually (neon HTTP doesn't allow multi-statement).
  */
 
 import { readFileSync } from 'fs';
@@ -21,6 +22,14 @@ function randomSchemaName(): string {
   return 'test_' + Math.random().toString(36).slice(2, 10);
 }
 
+/** Append search_path override to a Postgres connection URL. */
+function scopedUrl(baseUrl: string, schema: string): string {
+  const url = new URL(baseUrl);
+  // options param passes server-side SET commands at connect time.
+  url.searchParams.set('options', `--search_path=${schema}`);
+  return url.toString();
+}
+
 export interface TestDb {
   /** Pass this to any store function instead of the default sql. */
   sql: NeonQueryFunction<false, false>;
@@ -31,52 +40,31 @@ export interface TestDb {
 export async function createTestDb(): Promise<TestDb> {
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL not set');
 
+  // Root sql (public schema) — used only for schema management.
   const rootSql = neon(process.env.DATABASE_URL);
   const schema = randomSchemaName();
 
-  // Create isolated schema (sql.query for plain DDL — schema name is internal).
+  // Create isolated schema.
   await rootSql.query(`CREATE SCHEMA "${schema}"`);
 
-  // Apply every DDL statement with search_path set first.
+  // Apply every DDL statement individually inside the test schema.
   const statements = SCHEMA_SQL
     .split(/;/)
     .map((s) => s.replace(/--[^\n]*/g, '').trim())
     .filter((s) => s.length > 0);
 
+  // Use a scoped connection for DDL so tables land in the right schema.
+  const schemaSql = neon(scopedUrl(process.env.DATABASE_URL, schema));
   for (const stmt of statements) {
-    // sql.query() accepts a plain string — safe because schema name is
-    // internally generated (not user input) and stmt comes from our own file.
-    await rootSql.query(`SET search_path TO "${schema}"; ${stmt}`);
+    await schemaSql.query(stmt);
   }
 
-  // Build a scoped sql function that prepends SET search_path to every query.
-  // Uses sql.query() with explicit parameter arrays so we keep full
-  // parameterization for user-supplied values.
-  const makeScopedSql = (): NeonQueryFunction<false, false> => {
-    const fn = async function scopedQuery(
-      strings: TemplateStringsArray,
-      ...values: unknown[]
-    ) {
-      // Reconstruct the SQL string from the tagged-template parts,
-      // replacing each interpolated value with a $N placeholder.
-      const parts = Array.from(strings.raw ?? strings);
-      let query = '';
-      for (let i = 0; i < parts.length; i++) {
-        query += parts[i];
-        if (i < values.length) query += `$${i + 1}`;
-      }
-      // Run with search_path + parameterized values.
-      return rootSql.query(
-        `SET search_path TO "${schema}"; ${query}`,
-        values as unknown[],
-      );
-    };
-    return fn as unknown as NeonQueryFunction<false, false>;
-  };
+  // Build the scoped sql for store functions — also uses the scoped URL.
+  const scopedSqlFn = neon(scopedUrl(process.env.DATABASE_URL, schema));
 
   const teardown = async () => {
     await rootSql.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
   };
 
-  return { sql: makeScopedSql(), schema, teardown };
+  return { sql: scopedSqlFn as NeonQueryFunction<false, false>, schema, teardown };
 }
