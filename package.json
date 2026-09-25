@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:migrate": "dotenv -e .env.local -- tsx scripts/migrate.ts",
     "db:tables": "dotenv -e .env.local -- tsx scripts/list-tables.ts",
+    "db:reset-public": "dotenv -e .env.local -- tsx scripts/reset-public.ts",
     "test": "dotenv -e .env.local -- vitest run"
   },
   "dependencies": {

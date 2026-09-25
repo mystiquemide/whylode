@@ -1,11 +1,14 @@
 /**
- * Test helper: creates an isolated Postgres schema per test run,
- * applies db/schema.sql inside it, and returns a neon sql function scoped
- * to that schema. Call teardown() at the end of the suite.
+ * Test helper: connects to a dedicated `whylode_test` database in the same
+ * Neon project, drops and recreates all tables, and returns a neon() sql
+ * function bound to that database. Call teardown() at the end of each suite.
  *
- * Strategy: clone the DATABASE_URL and append ?options=--search_path%3D<schema>
- * so every connection made by neon() lands in the test schema by default.
- * Each DDL statement is run individually (neon HTTP doesn't allow multi-statement).
+ * Strategy: build the test URL by replacing the database name in the URL
+ * path with "whylode_test". The Neon HTTP driver ignores search_path in the
+ * URL, so schema isolation via a separate database is the only reliable option.
+ *
+ * Hard guard: createTestDb() throws if current_database() is not 'whylode_test',
+ * ensuring tests can never run against the production database.
  */
 
 import { readFileSync } from 'fs';
@@ -17,54 +20,77 @@ import ws from 'ws';
 neonConfig.webSocketConstructor = ws;
 
 const SCHEMA_SQL = readFileSync(join(process.cwd(), 'db', 'schema.sql'), 'utf8');
+const TEST_DB_NAME = 'whylode_test';
 
-function randomSchemaName(): string {
-  return 'test_' + Math.random().toString(36).slice(2, 10);
-}
-
-/** Append search_path override to a Postgres connection URL. */
-function scopedUrl(baseUrl: string, schema: string): string {
+/** Replace the database name in the Postgres URL path with `whylode_test`. */
+function testDbUrl(baseUrl: string): string {
   const url = new URL(baseUrl);
-  // options param passes server-side SET commands at connect time.
-  url.searchParams.set('options', `--search_path=${schema}`);
+  // The path is "/<dbname>" or "/<dbname>?…".
+  const parts = url.pathname.split('/');
+  parts[1] = TEST_DB_NAME;
+  url.pathname = parts.join('/');
   return url.toString();
 }
 
 export interface TestDb {
   /** Pass this to any store function instead of the default sql. */
   sql: NeonQueryFunction<false, false>;
-  schema: string;
   teardown: () => Promise<void>;
 }
 
 export async function createTestDb(): Promise<TestDb> {
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL not set');
 
-  // Root sql (public schema) — used only for schema management.
+  // ── 1. Ensure whylode_test database exists ─────────────────────────────────
+  // CREATE DATABASE cannot run inside a transaction; use the admin (root) URL.
   const rootSql = neon(process.env.DATABASE_URL);
-  const schema = randomSchemaName();
+  const existing = await rootSql`
+    SELECT 1 FROM pg_database WHERE datname = ${TEST_DB_NAME}
+  `;
+  if (existing.length === 0) {
+    // neon HTTP driver executes each tagged-template call as a single statement.
+    // CREATE DATABASE is not allowed in a transaction block, so use .query()
+    // which sends it as a simple query outside an implicit transaction.
+    await rootSql.query(`CREATE DATABASE ${TEST_DB_NAME}`);
+  }
 
-  // Create isolated schema.
-  await rootSql.query(`CREATE SCHEMA "${schema}"`);
+  // ── 2. Connect to whylode_test ─────────────────────────────────────────────
+  const url = testDbUrl(process.env.DATABASE_URL);
+  const sql = neon(url);
 
-  // Apply every DDL statement individually inside the test schema.
+  // ── 3. Hard guard ──────────────────────────────────────────────────────────
+  const dbCheck = await sql`SELECT current_database() AS db`;
+  const currentDb = (dbCheck[0] as { db: string }).db;
+  if (currentDb !== TEST_DB_NAME) {
+    throw new Error(
+      `Safety check failed: connected to "${currentDb}" instead of "${TEST_DB_NAME}". ` +
+      `Tests must never run against the production database.`,
+    );
+  }
+
+  // ── 4. Drop all tables in dependency order, then recreate from schema.sql ──
+  // Drop in reverse dependency order (cascade handles FK chains).
+  const tables = [
+    'events', 'draft_reasons', 'drafts', 'conflicts',
+    'trace_lines', 'notes', 'questions', 'experts',
+    'clauses', 'changes', 'programs',
+  ];
+  for (const t of tables) {
+    await sql.query(`DROP TABLE IF EXISTS "${t}" CASCADE`);
+  }
+
   const statements = SCHEMA_SQL
     .split(/;/)
     .map((s) => s.replace(/--[^\n]*/g, '').trim())
     .filter((s) => s.length > 0);
 
-  // Use a scoped connection for DDL so tables land in the right schema.
-  const schemaSql = neon(scopedUrl(process.env.DATABASE_URL, schema));
   for (const stmt of statements) {
-    await schemaSql.query(stmt);
+    await sql.query(stmt);
   }
 
-  // Build the scoped sql for store functions — also uses the scoped URL.
-  const scopedSqlFn = neon(scopedUrl(process.env.DATABASE_URL, schema));
-
   const teardown = async () => {
-    await rootSql.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
+    // Nothing to do: the next run will drop-and-recreate all tables.
   };
 
-  return { sql: scopedSqlFn as NeonQueryFunction<false, false>, schema, teardown };
+  return { sql: sql as NeonQueryFunction<false, false>, teardown };
 }
