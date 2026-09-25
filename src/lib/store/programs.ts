@@ -14,7 +14,7 @@ export async function upsertProgram(
       SET description = EXCLUDED.description,
           source      = EXCLUDED.source,
           updated_at  = now()
-    RETURNING id
+    RETURNING id::int AS id
   `;
   return rows[0] as { id: number };
 }

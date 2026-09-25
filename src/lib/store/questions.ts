@@ -17,7 +17,9 @@ export async function getQuestion(
   state: string;
 } | null> {
   const rows = await db`
-    SELECT id, change_id, expert_id, program, line_start, line_end, excerpt, question, state
+    SELECT id::int AS id, change_id::int AS change_id, expert_id::int AS expert_id,
+           program, line_start::int AS line_start, line_end::int AS line_end,
+           excerpt, question, state
     FROM questions WHERE id = ${question_id}
   `;
   return (rows[0] as {

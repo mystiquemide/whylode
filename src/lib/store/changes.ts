@@ -16,7 +16,7 @@ export async function openChange(
   const clause_ids: number[] = [];
   for (let i = 0; i < clauseTexts.length; i++) {
     const rows = await db`
-      INSERT INTO clauses (change_id, position, text) VALUES (${change_id}, ${i}, ${clauseTexts[i]}) RETURNING id
+      INSERT INTO clauses (change_id, position, text) VALUES (${change_id}, ${i}, ${clauseTexts[i]}) RETURNING id::int AS id
     `;
     clause_ids.push((rows[0] as { id: number }).id);
   }
@@ -40,7 +40,7 @@ export async function getChange(
 } | null> {
   const rows = await db`
     SELECT
-      c.id,
+      c.id::int AS id,
       c.title,
       c.source_file,
       c.created_at,

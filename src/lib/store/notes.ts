@@ -24,7 +24,7 @@ export async function answerQuestion(
   const noteRows = await db`
     INSERT INTO notes (program, line_start, line_end, text, author, question_id, change_id)
     VALUES (${q.program}, ${q.line_start}, ${q.line_end}, ${answer_text}, ${author}, ${question_id}, ${q.change_id})
-    RETURNING id
+    RETURNING id::int AS id
   `;
   const note_id = (noteRows[0] as { id: number }).id;
 

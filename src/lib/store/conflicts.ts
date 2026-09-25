@@ -12,7 +12,7 @@ export async function flagConflict(
   const rows = await db`
     INSERT INTO conflicts (change_id, note_id, claim, code_fact)
     VALUES (${change_id}, ${note_id}, ${claim}, ${code_fact})
-    RETURNING id
+    RETURNING id::int AS id
   `;
   const conflict_id = (rows[0] as { id: number }).id;
   await insertEvent(change_id, 'conflict_flagged', { conflict_id, note_id }, db);
@@ -24,7 +24,7 @@ export async function reviewConflict(
   db: NeonQueryFunction<false, false> = defaultSql,
 ): Promise<void> {
   const rows = await db`
-    SELECT id, change_id FROM conflicts WHERE id = ${conflict_id}
+    SELECT id::int AS id, change_id::int AS change_id FROM conflicts WHERE id = ${conflict_id}
   `;
   const conflict = rows[0] as { id: number; change_id: number } | undefined;
   if (!conflict) throw new Error(`Conflict ${conflict_id} not found`);

@@ -25,7 +25,7 @@ export async function submitDraft(
   }
 
   const draftRows = await db`
-    INSERT INTO drafts (change_id, diff) VALUES (${change_id}, ${diff}) RETURNING id
+    INSERT INTO drafts (change_id, diff) VALUES (${change_id}, ${diff}) RETURNING id::int AS id
   `;
   const draft_id = (draftRows[0] as { id: number }).id;
 
@@ -49,7 +49,7 @@ export async function approveDraft(
   db: NeonQueryFunction<false, false> = defaultSql,
 ): Promise<void> {
   const rows = await db`
-    SELECT id, change_id FROM drafts WHERE id = ${draft_id}
+    SELECT id::int AS id, change_id::int AS change_id FROM drafts WHERE id = ${draft_id}
   `;
   const draft = rows[0] as { id: number; change_id: number } | undefined;
   if (!draft) throw new Error(`Draft ${draft_id} not found`);

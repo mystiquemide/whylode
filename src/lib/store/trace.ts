@@ -26,7 +26,7 @@ export async function recordTrace(
     const rows = await db`
       INSERT INTO trace_lines (clause_id, program, line_no, code, confidence, state, note_id)
       VALUES (${clause_id}, ${line.program}, ${line.line_no}, ${line.code}, ${line.confidence}, ${state}, ${note_id})
-      RETURNING id
+      RETURNING id::int AS id
     `;
     ids.push((rows[0] as { id: number }).id);
   }
