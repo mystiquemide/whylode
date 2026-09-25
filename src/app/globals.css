@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --canvas: #faf9f7;
+  --surface: #fbfaf7;
+  --white: #ffffff;
+  --ink: #121722;
+  --slate: #777c86;
+  --steel: #a5a5a5;
+  --hairline: #efefef;
+  --gold: #b7831f;
+  --gold-hover: #946a17;
+  --gold-wash: #f7efdd;
+  --question: #2a5bd7;
+  --question-wash: #eaf0fc;
+  --confirmed: #046645;
+  --conflict: #d23f3f;
+  --conflict-wash: #fceded;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-white: var(--white);
+  --color-ink: var(--ink);
+  --color-slate: var(--slate);
+  --color-steel: var(--steel);
+  --color-hairline: var(--hairline);
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-wash: var(--gold-wash);
+  --color-question: var(--question);
+  --color-question-wash: var(--question-wash);
+  --color-confirmed: var(--confirmed);
+  --color-conflict: var(--conflict);
+  --color-conflict-wash: var(--conflict-wash);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+
+  --radius-pill: 48px;
+  --radius-panel: 16px;
+  --radius-tag: 8px;
+
+  --shadow-subtle: rgba(0, 0, 0, 0.07) 0 1px 1px 0, rgba(0, 0, 0, 0.04) 0 -1px 1px 0 inset, rgba(0, 0, 0, 0.14) 0 0 0 0.5px inset;
+  --shadow-float: rgba(0, 0, 0, 0.04) 0 20px 20px -8px;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "ss01" on;
+}

@@ -66,3 +66,4 @@ Local only. Never committed (in .gitignore).
 - 2026-09-24: Neon connected and verified with a live query. Pre-kickoff setup (P1, P3) done. P2 (lablab registration) is on the user. Next: kickoff Sep 25 11:00 GMT-4, Task 1 and 2 and 3.
 - 2026-09-24: Telegram kickoff reminder scheduled (at job 6, Sep 25 14:30 UTC) via /root/projects/whylode-reminders/tg-send.sh using the Hermes bot. Test message delivered.
 - 2026-09-24: Notion updated: Bob hackathon row set In progress / Build with deadline, requirements, note appended. Whylode project row created. User was already registered on lablab.
+- 2026-09-25: Repo created and pushed: https://github.com/mystiquemide/whylode (private, main). First commit 2ad4c8d after kickoff (15:00 UTC). Secret scan on staged files: 0 hits. .gitignore rewritten (.env* bug from vercel CLI fixed, .env.example kept), .bobignore added.
