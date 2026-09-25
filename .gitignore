@@ -1,0 +1,19 @@
+# Dependencies and builds
+node_modules/
+.next/
+out/
+
+# Secrets and local config
+.env
+.env*.local
+.env.*
+!.env.example
+.vercel
+.bob/mcp.json
+
+# Local agent instructions
+CLAUDE.md
+AGENTS.md
+
+# OS
+.DS_Store
