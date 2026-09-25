@@ -1,0 +1,125 @@
+%PDF-1.4
+%ÿÿÿÿ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+
+endobj
+
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>
+
+endobj
+
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]
+   /Contents 6 0 R
+   /Resources << /Font << /F1 5 0 R >> >> >>
+
+endobj
+
+4 0 obj
+<< /Length 2096 >>
+stream
+BT /F1 11 Tf 50 750 Td (ACME RETAIL PARTNERS) Tj ET
+BT /F1 11 Tf 50 732 Td (ELECTRONIC DATA INTERCHANGE OPERATIONS) Tj ET
+BT /F1 11 Tf 50 714 Td () Tj ET
+BT /F1 11 Tf 50 696 Td (EDI TRADING PARTNER NOTICE) Tj ET
+BT /F1 11 Tf 50 678 Td (Subject: EDI 810 Invoice Date Format Requirement) Tj ET
+BT /F1 11 Tf 50 660 Td (Notice ID: ARP-EDI-2026-014  |  Effective: October 1, 2026) Tj ET
+BT /F1 11 Tf 50 642 Td () Tj ET
+BT /F1 11 Tf 50 624 Td (To: All EDI 810 Invoice Suppliers) Tj ET
+BT /F1 11 Tf 50 606 Td () Tj ET
+BT /F1 11 Tf 50 588 Td (This notice updates the date format requirement for the BIG segment) Tj ET
+BT /F1 11 Tf 50 570 Td (of the EDI 810 Invoice transaction set.) Tj ET
+BT /F1 11 Tf 50 552 Td () Tj ET
+BT /F1 11 Tf 50 534 Td (CHANGE SUMMARY) Tj ET
+BT /F1 11 Tf 50 516 Td () Tj ET
+BT /F1 11 Tf 50 498 Td (  Segment:  BIG \(Beginning Segment for Invoice\)) Tj ET
+BT /F1 11 Tf 50 480 Td (  Element:  BIG01 \(Invoice Date\)) Tj ET
+BT /F1 11 Tf 50 462 Td () Tj ET
+BT /F1 11 Tf 50 444 Td (  Current accepted format:  YYYYMMDD) Tj ET
+BT /F1 11 Tf 50 426 Td (  New required format:      CCYYMMDD) Tj ET
+BT /F1 11 Tf 50 408 Td () Tj ET
+BT /F1 11 Tf 50 390 Td (Effective October 1, 2026, all EDI 810 invoices submitted to) Tj ET
+BT /F1 11 Tf 50 372 Td (Acme Retail Partners must use the CCYYMMDD format in the BIG01) Tj ET
+BT /F1 11 Tf 50 354 Td (element as specified in the X12 005010 implementation guide.) Tj ET
+BT /F1 11 Tf 50 336 Td () Tj ET
+BT /F1 11 Tf 50 318 Td (BACKGROUND) Tj ET
+BT /F1 11 Tf 50 300 Td () Tj ET
+BT /F1 11 Tf 50 282 Td (The CCYYMMDD format is the X12 standard 8-character date format) Tj ET
+BT /F1 11 Tf 50 264 Td (where CC represents the century \(19 or 20\), YY the two-digit year,) Tj ET
+BT /F1 11 Tf 50 246 Td (MM the month, and DD the day.) Tj ET
+BT /F1 11 Tf 50 228 Td () Tj ET
+BT /F1 11 Tf 50 210 Td (For dates in the years 2000-2099, CCYYMMDD and YYYYMMDD produce) Tj ET
+BT /F1 11 Tf 50 192 Td (identical 8-character strings. This change aligns terminology) Tj ET
+BT /F1 11 Tf 50 174 Td (with the X12 005010 specification without altering the byte values.) Tj ET
+endstream
+
+endobj
+
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]
+   /Contents 8 0 R
+   /Resources << /Font << /F1 5 0 R >> >> >>
+
+endobj
+
+6 0 obj
+<< /Length 1745 >>
+stream
+BT /F1 11 Tf 50 750 Td (TECHNICAL REQUIREMENTS) Tj ET
+BT /F1 11 Tf 50 732 Td () Tj ET
+BT /F1 11 Tf 50 714 Td (  Transaction Set: 810 Invoice) Tj ET
+BT /F1 11 Tf 50 696 Td (  Implementation:  X12 005010X012A1) Tj ET
+BT /F1 11 Tf 50 678 Td (  Segment:         BIG) Tj ET
+BT /F1 11 Tf 50 660 Td (  Element:         BIG01) Tj ET
+BT /F1 11 Tf 50 642 Td (  Format:          CCYYMMDD \(8 numeric digits\)) Tj ET
+BT /F1 11 Tf 50 624 Td (  Example:         20261001 \(October 1, 2026\)) Tj ET
+BT /F1 11 Tf 50 606 Td () Tj ET
+BT /F1 11 Tf 50 588 Td (TESTING) Tj ET
+BT /F1 11 Tf 50 570 Td () Tj ET
+BT /F1 11 Tf 50 552 Td (Suppliers are required to submit one test 810 transaction in the) Tj ET
+BT /F1 11 Tf 50 534 Td (CCYYMMDD format through the AS2 test gateway by September 15, 2026.) Tj ET
+BT /F1 11 Tf 50 516 Td () Tj ET
+BT /F1 11 Tf 50 498 Td (Test gateway: edi-test.acmeretail.com:4080) Tj ET
+BT /F1 11 Tf 50 480 Td (ISA qualifier: ZZ  ISA ID: ACMEEDITST) Tj ET
+BT /F1 11 Tf 50 462 Td () Tj ET
+BT /F1 11 Tf 50 444 Td (ACKNOWLEDGEMENT) Tj ET
+BT /F1 11 Tf 50 426 Td () Tj ET
+BT /F1 11 Tf 50 408 Td (Your 997 Functional Acknowledgement must be updated to confirm) Tj ET
+BT /F1 11 Tf 50 390 Td (receipt of 810 transactions using the CCYYMMDD date element.) Tj ET
+BT /F1 11 Tf 50 372 Td () Tj ET
+BT /F1 11 Tf 50 354 Td (CONTACT) Tj ET
+BT /F1 11 Tf 50 336 Td () Tj ET
+BT /F1 11 Tf 50 318 Td (EDI Help Desk: edi-support@acmeretail.com) Tj ET
+BT /F1 11 Tf 50 300 Td (Phone: \(555\) 900-4400 ext 2) Tj ET
+BT /F1 11 Tf 50 282 Td () Tj ET
+BT /F1 11 Tf 50 264 Td (Notice issued by: Acme Retail Partners EDI Operations) Tj ET
+BT /F1 11 Tf 50 246 Td (Date: August 28, 2026) Tj ET
+BT /F1 11 Tf 50 228 Td () Tj ET
+BT /F1 11 Tf 50 210 Td (--- END OF NOTICE ---) Tj ET
+endstream
+
+endobj
+
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+
+endobj
+
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000066 00000 n 
+0000000131 00000 n 
+0000000265 00000 n 
+0000002415 00000 n 
+0000002549 00000 n 
+0000004348 00000 n 
+
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+4447
+%%EOF

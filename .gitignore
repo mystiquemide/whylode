@@ -20,3 +20,6 @@ AGENTS.md
 
 # Answer keys for the recorded runs
 *.local.md
+
+# Git commit template
+.gitmessage

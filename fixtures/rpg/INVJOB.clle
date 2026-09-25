@@ -1,0 +1,39 @@
+/* INVJOB - Invoice Processing Job
+ *
+ * Submitted by the end-of-day batch scheduler.
+ * Calls ORDENT to process queued orders, then EDIOUT to
+ * produce the outbound EDI 810 file for the trading partner.
+ *
+ * Steps:
+ *   1. Override order files to production library
+ *   2. Call ORDENT for each unprocessed order
+ *   3. Call EDIOUT to write the EDI spool
+ *   4. Submit EDISND to transmit the file
+ */
+PGM
+
+    DCL VAR(&ORDLIB) TYPE(*CHAR) LEN(10) VALUE('ORDPRD')
+    DCL VAR(&ERRFLAG) TYPE(*CHAR) LEN(1)
+
+    /* Override to production order library */
+    OVRDBF FILE(ORDHDR) TOFILE(&ORDLIB/ORDHDR) OVRSCOPE(*JOB)
+    OVRDBF FILE(ORDDTL) TOFILE(&ORDLIB/ORDDTL) OVRSCOPE(*JOB)
+    OVRDBF FILE(CUSTMST) TOFILE(&ORDLIB/CUSTMST) OVRSCOPE(*JOB)
+    OVRDBF FILE(TAXTBL) TOFILE(&ORDLIB/TAXTBL) OVRSCOPE(*JOB)
+
+    /* Run invoice calculation for unprocessed orders */
+    CALL PGM(ORDENT) PARM(&ERRFLAG)
+    IF COND(&ERRFLAG *EQ 'Y') THEN(DO)
+        SNDPGMMSG MSG('INVJOB: ORDENT returned error. Check QSYSOPR.') +
+                  TOPGMQ(*EXT) MSGTYPE(*ESCAPE)
+    ENDDO
+
+    /* Generate EDI 810 output */
+    CALL PGM(EDIOUT)
+
+    /* Transmit EDI file - submitted separately so job log stays clean */
+    SBMJOB CMD(CALL PGM(EDISND)) JOB(EDISND) JOBQ(QBATCH)
+
+    DLTOVR FILE(*ALL) LVL(*JOB)
+
+ENDPGM

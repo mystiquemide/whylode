@@ -1,12 +1,32 @@
-import { neon, neonConfig } from '@neondatabase/serverless';
+import { neon, neonConfig, NeonQueryFunction } from '@neondatabase/serverless';
 import ws from 'ws';
 
 // Use WebSocket for environments that don't have a native one (Node.js).
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not set');
+// Lazily resolve the connection so the module can be imported at build time
+// without DATABASE_URL. The error surfaces when the first query runs.
+let _db: NeonQueryFunction<false, false> | null = null;
+
+function getDb(): NeonQueryFunction<false, false> {
+  if (!_db) {
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error('DATABASE_URL is not set');
+    _db = neon(url) as NeonQueryFunction<false, false>;
+  }
+  return _db;
 }
 
 // sql is the tagged-template query function for single statements.
-export const sql = neon(process.env.DATABASE_URL);
+// Typed as NeonQueryFunction<false, false> to match store function signatures.
+export const sql: NeonQueryFunction<false, false> = new Proxy(
+  {} as NeonQueryFunction<false, false>,
+  {
+    get(_target, prop) {
+      return getDb()[prop as keyof NeonQueryFunction<false, false>];
+    },
+    apply(_target, _thisArg, args) {
+      return (getDb() as unknown as (...a: unknown[]) => unknown)(...args);
+    },
+  },
+) as NeonQueryFunction<false, false>;
