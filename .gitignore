@@ -23,3 +23,6 @@ AGENTS.md
 
 # Git commit template
 .gitmessage
+
+# TypeScript build cache
+*.tsbuildinfo
