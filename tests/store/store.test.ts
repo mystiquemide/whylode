@@ -19,7 +19,7 @@ import { upsertProgram } from '../../src/lib/store/programs';
 import { openChange, getChange } from '../../src/lib/store/changes';
 import { recordTrace } from '../../src/lib/store/trace';
 import { createExpert } from '../../src/lib/store/experts';
-import { answerQuestion } from '../../src/lib/store/notes';
+import { answerQuestion, memoirLookup } from '../../src/lib/store/notes';
 import { submitDraft } from '../../src/lib/store/drafts';
 import { flagConflict, reviewConflict } from '../../src/lib/store/conflicts';
 import { getEvents } from '../../src/lib/store/events';
@@ -250,15 +250,15 @@ describe('store', () => {
 
   it('memoir lookup with a program name containing quotes returns correct rows', async () => {
     const { change_id } = await scaffold(tdb.sql);
-    const prog = `INVCALC's "BEST".rpgle`;
-    // Insert a note directly.
+    // Use a unique program name so no other test's note can collide.
+    const prog = `O'Hara_INVCALC's "BEST"_${Date.now()}.rpgle`;
+    const noteText = 'Some note ' + prog;
     await tdb.sql`
       INSERT INTO notes (program, line_start, line_end, text, author, change_id)
-      VALUES (${prog}, 1, 5, 'Some note', 'tester', ${change_id})
+      VALUES (${prog}, 1, 5, ${noteText}, 'tester', ${change_id})
     `;
-    const { memoirLookup } = await import('../../src/lib/store/notes');
     const notes = await memoirLookup(prog, 1, 5, tdb.sql);
     expect(notes.length).toBe(1);
-    expect(notes[0].text).toBe('Some note');
+    expect(notes[0].text).toBe(noteText);
   });
 });
