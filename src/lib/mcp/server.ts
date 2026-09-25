@@ -1,3 +1,4 @@
+import { baseUrl } from '@/lib/base-url';
 /**
  * Whylode MCP server — 8 tools, stateless streamable HTTP.
  *
@@ -117,7 +118,7 @@ export function createMcpServer() {
     async ({ change_id, expert_name, questions }) =>
       runTool(async () => {
         const result = await createExpert(change_id, expert_name, questions);
-        const base = process.env.WHYLODE_BASE_URL ?? 'http://localhost:3000';
+        const base = baseUrl();
         return {
           expert_id: result.expert_id,
           link: `${base}/ask/${result.token}`,

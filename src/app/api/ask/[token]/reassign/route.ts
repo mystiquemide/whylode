@@ -1,3 +1,4 @@
+import { baseUrl } from '@/lib/base-url';
 import { getExpertByToken } from '@/lib/store/experts';
 import { reassignQuestion } from '@/lib/store/questions';
 import { createExpert } from '@/lib/store/experts';
@@ -47,7 +48,7 @@ export async function POST(
       },
     ]);
 
-    const base = process.env.WHYLODE_BASE_URL ?? 'http://localhost:3000';
+    const base = baseUrl();
     return NextResponse.json({ ok: true, link: `${base}/ask/${newToken}` });
   } catch (err) {
     return NextResponse.json(

@@ -1,3 +1,4 @@
+import { baseUrl } from "@/lib/base-url";
 import type { Metadata } from "next";
 import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
@@ -14,7 +15,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.WHYLODE_BASE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(baseUrl()),
   title: "Whylode",
   description:
     "Whylode runs inside IBM Bob. When a rule changes, it traces every line that has to change, asks the one person who knows why, and keeps the answer.",
