@@ -1,7 +1,6 @@
-     A                                      DSPSIZ(24 80 *DS3)
      A            R TAXTBLR
      A              TBTYPE         2        COLHDG('CUST' 'TYPE')
-     A                                      TEXT('Customer type key: RT WH GO')
+     A                                      TEXT('Customer type')
      A              TBTAXRT        7  4     COLHDG('TAX' 'RATE')
      A                                      TEXT('Override tax rate for type')
      A              TBDESC        30        COLHDG('DESCRIPTION')

@@ -6,7 +6,7 @@
       *
       * Maintenance log:
       *   2019-03 RLT  Initial version
-      *   2021-11 RLT  Added WH customer handling per sales ops request
+      *   2021-11 RLT  Chg per sales ops req
       *
      FTAXTBL    IF   E           K DISK
       *
@@ -26,29 +26,29 @@
      C                   PARM      TaxAmt
      C                   PARM      ErrFlag
       *
-      * Default: apply standard state rate
+      * Set rate
      C                   EVAL      TaxRate  = 0.0725
       *
-      * Look up rate override in TAXTBL for this customer type
+      * Check override
      C     CustType      CHAIN     TAXTBL
      C                   IF        %FOUND
      C                   EVAL      TaxRate  = TBTAXRT
      C                   ENDIF
       *
-      * Indicator 42: wholesale customer receives pre-negotiated rate
-     C                   IF        CustType = 'WH'
+      *
+     C                   IF        CustType = 'C2'
      C                   SETON                                        42
      C                   ENDIF
       *
-     C   42              IF        *IN42 = *ON
+     C                   IF        *IN42 = *ON
      C                   EVAL      TaxRate  = 0.0525
      C                   ENDIF
       *
-      * Calculate tax on full order amount
+      * Calc tax
      C                   EVAL      CalcBase = OrderAmt
      C                   EVAL      TaxAmt   = CalcBase * TaxRate
       *
-      * Round to two decimal places
+      *
      C                   EVAL(H)   TaxAmt   = TaxAmt
       *
      C                   EVAL      *INLR = *ON

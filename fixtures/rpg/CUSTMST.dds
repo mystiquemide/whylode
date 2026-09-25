@@ -1,5 +1,3 @@
-     A                                      DSPSIZ(24 80 *DS3)
-     A                                      PRINT
      A            R CUSTMSTR
      A              CMCUST         7  0     COLHDG('CUSTOMER' 'NUMBER')
      A              CMNAME        40        COLHDG('CUSTOMER NAME')
@@ -8,8 +6,7 @@
      A              CMSTATE        2        COLHDG('ST')
      A              CMZIP          9        COLHDG('ZIP')
      A              CMTYPE         2        COLHDG('TYPE')
-     A                                      TEXT('Customer type: RT=Retail +
-     A                                           WH=Wholesale GO=Government')
+     A                                      TEXT('Customer type')
      A              CMCRLIM       11  2     COLHDG('CREDIT' 'LIMIT')
      A              CMBAL         11  2     COLHDG('BALANCE')
      A              CMPHONE       10        COLHDG('PHONE')
