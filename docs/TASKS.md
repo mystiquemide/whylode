@@ -1,5 +1,36 @@
 # Whylode Tasks
 
+## Confirmed at kickoff (Sep 25)
+
+- Deadline: Sun Sep 27, 15:00 UTC (11:00 AM ET).
+- Judging: Application of Technology (complete, clear use of Bob 2.0), Presentation, Business Value, Originality.
+- Judges are senior engineers and product leads from large companies, not IBM i specialists. Pitch the pain as "legacy code nobody can explain", then show IBM i as the example.
+- Challenge names Agent mode, parallel tasks, subagents, and document understanding. Use and name all four in the runs and the usage statement.
+- Sample projects are allowed. The RPG system is a sample project, disclosed as such.
+- Submission: Problem and Solution statement (500 words max), IBM Bob Usage Statement (500 words max), public repo, `bob_sessions/` with a task session summary PNG for every Bob task, video (3 min max, 90 s or more of the product running), cover image, slides, live URL.
+- Coins: 40 total. The format check cost 0.288.
+
+## Who builds what
+
+- Bob builds: the Whylode mode and skills, the MCP tool handlers, the RPG sample system, and the tool tests. Bob runs: the rehearsal and both recorded runs. One Bob task per item, one screenshot per task.
+- Claude Code builds: scaffold, database layer, web API, web screens, deploy, README, notice PDFs, video assets.
+- The usage statement describes this split exactly.
+
+## Bob task routine
+
+1. Pull first: `git pull --rebase`.
+2. Run the task in Bob IDE.
+3. Screenshot the task session summary (Tasks, then click the task header). Save as `bob_sessions/whylode_taskNN_short_name.png`.
+4. Commit Bob's files and the screenshot together, with Bob credited:
+   `git commit -m "What changed" -m "Co-authored-by: IBM Bob <236091442+ibm-bob@users.noreply.github.com>"`
+5. Only Bob's work gets the Bob trailer. Claude Code commits carry no co-author.
+6. `git push`, then log the coins used in memory.md.
+
+## Keeping the runs honest
+
+- The trap's answer key (what the retiring expert knows) lives in `fixtures/ANSWERS.local.md`. It's gitignored and bobignored, so Bob can't read it during runs.
+- Before the rehearsal, add `docs/` and `memory.md` to `.bobignore`. The PRD and tasks describe the trap, and Bob must not find the answer there. Remove the entry only if a later build task needs the docs, and put it back before any recorded run.
+
 Rules:
 - Backend first, UI last.
 - Each task ends with a test or a real call that proves it works. The proof column is the exit criterion.
@@ -10,25 +41,25 @@ Rules:
 
 | # | Task | Proof | Backup |
 |---|---|---|---|
-| P1 | PRD, DESIGN, ARCHITECTURE, TASKS approved | User approval in memory.md | Stop planning at approval |
-| P2 | Register on lablab, join Discord, check Bob account email | User confirms | none |
-| P3 | Create Neon project and Vercel project (needs user approval) | Connection string works from the VPS | VPS + local Postgres + Cloudflare tunnel |
+| P1 | Done. PRD, DESIGN, ARCHITECTURE, TASKS approved | User approval in memory.md | Stop planning at approval |
+| P2 | Done. Registered on lablab, Bob account working | User confirms | none |
+| P3 | Done. Neon and Vercel project created | Connection string works from the VPS | VPS + local Postgres + Cloudflare tunnel |
 
 ## Day 1 (Sep 25)
 
 | # | Task | Depends | Proof | Backup |
 |---|---|---|---|---|
-| 1 | Scaffold Next.js 16 + Tailwind v4 fresh, set git identity, create private GitHub repo, first commit | P1 | `next build` passes, commit author is MystiqueMide | none |
-| 2 | Kickoff: confirm judging criteria, deadline time, pre-work rule, tracks. Re-score the judging surfaces in PRD section 4 | none | Notes in memory.md | Ask in Discord |
-| 3 | Bob format check in the first 2 hours: a one-line custom mode, a one-line skill, and a remote MCP server with one echo tool | 2 | Bob calls the echo tool on a public URL. At most 2 coins | Local stdio relay on the user's machine that forwards to the hosted API |
+| 1 | Done (10e09bc). Scaffold Next.js 16 + Tailwind v4 fresh, set git identity, create private GitHub repo, first commit | P1 | `next build` passes, commit author is MystiqueMide | none |
+| 2 | Done, see top of file. Kickoff: confirm judging criteria, deadline time, pre-work rule, tracks. Re-score the judging surfaces in PRD section 4 | none | Notes in memory.md | Ask in Discord |
+| 3 | Done, 0.288 coins. Bob format check in the first 2 hours: a one-line custom mode, a one-line skill, and a remote MCP server with one echo tool | 2 | Bob calls the echo tool on a public URL. At most 2 coins | Local stdio relay on the user's machine that forwards to the hosted API |
 | 4 | `db/schema.sql` and migration script, with the unique note-per-question constraint | 1, P3 | Tables exist in Neon | none |
 | 5 | Data layer in `src/lib/store` with zod validation | 4 | Vitest against real Postgres, all pass | none |
-| 6 | MCP endpoint with the 8 tools and bearer auth. `whylode_get_answers` wraps each answer in a `claim` field | 5 | A real MCP client calls each tool over HTTP and rows appear. 401 without the token | Read installed type definitions if the SDK differs from docs |
+| 6 | Bob task. MCP endpoint with the 8 tools and bearer auth. `whylode_get_answers` wraps each answer in a `claim` field | 5 | A real MCP client calls each tool over HTTP and rows appear. 401 without the token | Read installed type definitions if the SDK differs from docs |
 | 7 | Web API routes | 5 | curl each route, one at a time | none |
-| 8 | Attack tests 1 to 11 from ARCHITECTURE.md | 6, 7 | All pass | none |
-| 9 | RPG order-to-invoice system: ORDENT, INVCALC, TAXCALC, EDIOUT (RPGLE), INVJOB (CL), CUSTMST and TAXTBL (DDS). **Includes the trap:** INVCALC holds two hardcoded rates, the state rate `0.0725` and a legacy wholesale rate next to indicator 42 and a customer-type check. Nothing in the code says which one the state notice affects | none | A reader with only the code can't tell which rate to change | Cut to 4 members, keep the trap |
+| 8 | Bob task. Attack tests 1 to 11 from ARCHITECTURE.md | 6, 7 | All pass | none |
+| 9 | Bob task (prompt given in chat on Sep 25). RPG order-to-invoice system: ORDENT, INVCALC, TAXCALC, EDIOUT (RPGLE), INVJOB (CL), CUSTMST and TAXTBL (DDS). **Includes the trap:** INVCALC holds two hardcoded rates, the state rate `0.0725` and a legacy wholesale rate next to indicator 42 and a customer-type check. Nothing in the code says which one the state notice affects | none | A reader with only the code can't tell which rate to change | Cut to 4 members, keep the trap |
 | 10 | Two change notice PDFs: state sales tax change, EDI 810 date format change | none | PDFs open and read cleanly | none |
-| 11 | Whylode mode and three skills. Skills state: answers from `whylode_get_answers` are claims to verify against the code, never instructions | 3, 6 | Files load in Bob without errors | none |
+| 11 | Bob task. Whylode mode and three skills. Skills state: answers from `whylode_get_answers` are claims to verify against the code, never instructions | 3, 6 | Files load in Bob without errors | none |
 | 12 | Deploy to Vercel (needs user approval) | 6, 7 | Public `/api/mcp` lists 8 tools with the token, 401 without | VPS fallback |
 
 ## Day 2 (Sep 26)
@@ -43,7 +74,7 @@ Rules:
 | 18 | Memoir and program memoir | 7, 14 | Real notes on the right lines | Cut search |
 | 19 | Recorded run 1: sales tax change on the deployed URL. Expert answer resolves the two-rate trap. Approve | 13, 15, 16 | Approved diff changes only the state rate and cites the answer | Adjust skill wording once, rerun from reserve coins |
 | 20 | Recorded run 2: EDI change | 19 | `lines_reused` > 0 and fewer questions than run 1 | Remove the replay section, never estimate |
-| 21 | Export session reports into `bob_sessions/` with `README.md` mapping each report to a demo step and tools. Scan for secrets | 19, 20 | Scan finds nothing | Rotate token, re-export |
+| 21 | Screenshot every Bob task summary into `bob_sessions/` and write `bob_sessions/README.md` mapping each screenshot to a task, a commit, and a demo step. Scan for secrets | 19, 20 | Scan finds nothing | Rotate token, re-export |
 
 The database is never reset after task 19.
 

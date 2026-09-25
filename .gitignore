@@ -17,3 +17,6 @@ AGENTS.md
 
 # OS
 .DS_Store
+
+# Answer keys for the recorded runs
+*.local.md
