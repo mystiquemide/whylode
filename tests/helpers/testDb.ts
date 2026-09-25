@@ -5,8 +5,6 @@
  *
  * Strategy: each store function accepts an optional `db` parameter.
  * We pass a wrapped sql function that sets search_path before each query.
- * The neon HTTP driver opens a new connection per query, so we prefix the
- * DDL and DML with `SET search_path TO <schema>` in a single transaction block.
  */
 
 import { readFileSync } from 'fs';
@@ -46,34 +44,34 @@ export async function createTestDb(): Promise<TestDb> {
     .filter((s) => s.length > 0);
 
   for (const stmt of statements) {
-    // Use rootSql with a raw template that embeds the search_path directive.
-    // We cannot pass parameters here (DDL has none), so string interpolation
-    // of the schema name is safe — it is generated internally, not user input.
-    await rootSql([`SET search_path TO "${schema}"; ${stmt}`] as unknown as TemplateStringsArray);
+    // sql.query() accepts a plain string — safe because schema name is
+    // internally generated (not user input) and stmt comes from our own file.
+    await rootSql.query(`SET search_path TO "${schema}"; ${stmt}`);
   }
 
-  // Build a sql function that prepends SET search_path to every query.
-  // This works because neon() creates a new HTTP request per call.
+  // Build a scoped sql function that prepends SET search_path to every query.
+  // Uses sql.query() with explicit parameter arrays so we keep full
+  // parameterization for user-supplied values.
   const makeScopedSql = (): NeonQueryFunction<false, false> => {
-    return Object.assign(
-      async function scopedQuery(
-        strings: TemplateStringsArray,
-        ...values: unknown[]
-      ) {
-        // Build a single string with parameter placeholders.
-        const parts = Array.from(strings.raw ?? strings);
-        let query = '';
-        for (let i = 0; i < parts.length; i++) {
-          query += parts[i];
-          if (i < values.length) query += `$${i + 1}`;
-        }
-        // Prepend search_path directive.
-        const full = `SET search_path TO "${schema}"; ${query}`;
-        return rootSql([full] as unknown as TemplateStringsArray, ...values);
-      },
-      // neon() has extra properties; we only need the function shape for tests.
-      { transaction: undefined },
-    ) as unknown as NeonQueryFunction<false, false>;
+    const fn = async function scopedQuery(
+      strings: TemplateStringsArray,
+      ...values: unknown[]
+    ) {
+      // Reconstruct the SQL string from the tagged-template parts,
+      // replacing each interpolated value with a $N placeholder.
+      const parts = Array.from(strings.raw ?? strings);
+      let query = '';
+      for (let i = 0; i < parts.length; i++) {
+        query += parts[i];
+        if (i < values.length) query += `$${i + 1}`;
+      }
+      // Run with search_path + parameterized values.
+      return rootSql.query(
+        `SET search_path TO "${schema}"; ${query}`,
+        values as unknown[],
+      );
+    };
+    return fn as unknown as NeonQueryFunction<false, false>;
   };
 
   const teardown = async () => {

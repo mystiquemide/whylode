@@ -18,7 +18,7 @@ async function migrate() {
 
   let applied = 0;
   for (const stmt of statements) {
-    await sql([stmt] as unknown as TemplateStringsArray);
+    await sql.query(stmt);
     applied++;
   }
 
