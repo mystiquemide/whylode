@@ -34,8 +34,8 @@ export async function createTestDb(): Promise<TestDb> {
   const rootSql = neon(process.env.DATABASE_URL);
   const schema = randomSchemaName();
 
-  // Create isolated schema.
-  await rootSql`CREATE SCHEMA ${rootSql(schema)}`;
+  // Create isolated schema (sql.query for plain DDL — schema name is internal).
+  await rootSql.query(`CREATE SCHEMA "${schema}"`);
 
   // Apply every DDL statement with search_path set first.
   const statements = SCHEMA_SQL
@@ -75,7 +75,7 @@ export async function createTestDb(): Promise<TestDb> {
   };
 
   const teardown = async () => {
-    await rootSql`DROP SCHEMA IF EXISTS ${rootSql(schema)} CASCADE`;
+    await rootSql.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
   };
 
   return { sql: makeScopedSql(), schema, teardown };
