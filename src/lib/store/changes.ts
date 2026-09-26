@@ -120,3 +120,48 @@ export async function getClauses(
   `;
   return rows as Array<{ id: number; position: number; text: string }>;
 }
+
+export type ChangeSummary = {
+  id: number;
+  title: string;
+  source_file: string;
+  status: string;
+  created_at: string;
+  questions_asked: number;
+  questions_open: number;
+  lines_changed: number;
+  lines_kept: number;
+  lines_reused: number;
+};
+
+/** Every change with its status and real counts from the store, newest first. */
+export async function listChangeSummaries(
+  db: NeonQueryFunction<false, false> = defaultSql,
+): Promise<ChangeSummary[]> {
+  const base = await listChanges(db);
+  const counts = await db`
+    SELECT c.id,
+      (SELECT count(*) FROM questions q WHERE q.change_id = c.id)::int AS questions_asked,
+      (SELECT count(*) FROM questions q WHERE q.change_id = c.id AND q.state = 'open')::int AS questions_open,
+      (SELECT count(*) FROM trace_lines t JOIN clauses cl ON cl.id = t.clause_id
+        WHERE cl.change_id = c.id AND t.state = 'known')::int AS lines_reused,
+      (SELECT count(*) FROM draft_reasons r JOIN drafts d ON d.id = r.draft_id
+        WHERE d.id = (SELECT max(id) FROM drafts WHERE change_id = c.id) AND r.action = 'changed')::int AS lines_changed,
+      (SELECT count(*) FROM draft_reasons r JOIN drafts d ON d.id = r.draft_id
+        WHERE d.id = (SELECT max(id) FROM drafts WHERE change_id = c.id) AND r.action = 'kept')::int AS lines_kept
+    FROM changes c
+  `;
+  const byId = new Map((counts as Array<Record<string, number>>).map((r) => [Number(r.id), r]));
+  return base.map((c) => {
+    const n = byId.get(Number(c.id));
+    return {
+      ...c,
+      created_at: String(c.created_at),
+      questions_asked: n?.questions_asked ?? 0,
+      questions_open: n?.questions_open ?? 0,
+      lines_changed: n?.lines_changed ?? 0,
+      lines_kept: n?.lines_kept ?? 0,
+      lines_reused: n?.lines_reused ?? 0,
+    };
+  });
+}
