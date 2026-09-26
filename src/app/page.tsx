@@ -2,16 +2,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Footer, Nav } from '@/components/site';
 import { Eyebrow, PrimaryLink, StateTag, TextLink } from '@/components/ui';
-import { getHeroProof, getRunSnapshot, realRunHref, type HeroProof, type RunSnapshot } from '@/lib/store/landing';
+import { getHeroProof, getReplay, getRunSnapshot, realRunHref, type HeroProof, type ReplayRow, type RunSnapshot } from '@/lib/store/landing';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const [proof, run, runHref] = await Promise.all([
-    getHeroProof().catch(() => null),
-    getRunSnapshot().catch(() => null),
-    realRunHref(),
+  const proof = await getHeroProof().catch(() => null);
+  const [run, replay] = await Promise.all([
+    proof ? getRunSnapshot(proof.change_id).catch(() => null) : Promise.resolve(null),
+    getReplay().catch(() => [] as ReplayRow[]),
   ]);
+  const runHref = proof ? `/changes/${proof.change_id}?tab=draft` : await realRunHref();
 
   return (
     <>
@@ -119,6 +120,7 @@ export default async function Home() {
 
         {run && <HowItWorks run={run} />}
         {run?.diff && proof && <Proof run={run} proof={proof} />}
+        {replay.length >= 2 && <Replay rows={replay} />}
         <Keep />
         <BuiltOnBob />
         <FinalBand href={runHref} />
@@ -360,6 +362,50 @@ function FinalBand({ href }: { href: string }) {
             See a real run
           </Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function Replay({ rows }: { rows: ReplayRow[] }) {
+  const [first, ...later] = rows;
+  const known = later.reduce((n, r) => n + r.lines_known, 0);
+  return (
+    <section aria-labelledby="replay" className="pb-20 lg:pb-28">
+      <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
+        <Eyebrow>The next change</Eyebrow>
+        <h2 id="replay" className="display mt-5 max-w-3xl text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
+          Nobody gets asked the same thing twice.
+        </h2>
+        <p className="mt-5 max-w-2xl text-[17px] leading-[1.5] text-steel">
+          The second change touched the same tax code. Bob found {known} {known === 1 ? 'line' : 'lines'} already explained
+          in the memoir and only asked about what was new.
+        </p>
+        <ol className="mt-12 divide-y divide-mist border-y border-mist">
+          {[first, ...later].map((r, i) => (
+            <li key={r.change_id}>
+              <Link
+                href={`/changes/${r.change_id}`}
+                className="grid gap-3 py-6 hover:bg-ash/60 sm:grid-cols-[80px_1fr_auto] sm:items-center sm:gap-8 sm:px-2"
+              >
+                <span className="font-mono text-[13px] text-brass">Change {i + 1}</span>
+                <span className="display text-[22px] leading-[1.3] sm:text-[24px]">{r.title}</span>
+                <span className="flex flex-wrap gap-x-8 gap-y-1 text-[15px]">
+                  <span>
+                    <span className="display text-[28px] leading-none">{r.questions_asked}</span>{' '}
+                    <span className="text-steel">{r.questions_asked === 1 ? 'question' : 'questions'}</span>
+                  </span>
+                  <span>
+                    <span className={`display text-[28px] leading-none ${r.lines_known > 0 ? 'text-brass' : ''}`}>
+                      {r.lines_known}
+                    </span>{' '}
+                    <span className="text-steel">{r.lines_known === 1 ? 'line already known' : 'lines already known'}</span>
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

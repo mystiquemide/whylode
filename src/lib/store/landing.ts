@@ -46,11 +46,14 @@ export type RunSnapshot = {
   approved_by: string | null;
 };
 
-/** Real pieces of the most recently approved change, one per step of the workflow. */
-export async function getRunSnapshot(db: NeonQueryFunction<false, false> = defaultSql): Promise<RunSnapshot | null> {
+/** Real pieces of one approved change, one per step of the workflow. */
+export async function getRunSnapshot(
+  changeId: number,
+  db: NeonQueryFunction<false, false> = defaultSql,
+): Promise<RunSnapshot | null> {
   const drafts = await db`
     SELECT d.change_id, d.diff, d.decided_by, c.title FROM drafts d JOIN changes c ON c.id = d.change_id
-    WHERE d.state = 'approved' ORDER BY d.decided_at DESC LIMIT 1
+    WHERE d.state = 'approved' AND d.change_id = ${changeId} ORDER BY d.decided_at DESC LIMIT 1
   `;
   const d = drafts[0] as { change_id: number; diff: string; decided_by: string | null; title: string } | undefined;
   if (!d) return null;
@@ -88,7 +91,33 @@ export async function getLatestApprovedChangeId(db: NeonQueryFunction<false, fal
   return rows[0] ? Number((rows[0] as { change_id: number }).change_id) : null;
 }
 
+/** The run the landing page tells the story with: the one whose kept line an owner explained. */
 export async function realRunHref(): Promise<string> {
-  const id = await getLatestApprovedChangeId().catch(() => null);
+  const proof = await getHeroProof().catch(() => null);
+  const id = proof?.change_id ?? (await getLatestApprovedChangeId().catch(() => null));
   return id ? `/changes/${id}?tab=draft` : '/changes';
+}
+
+export type ReplayRow = {
+  change_id: number;
+  title: string;
+  questions_asked: number;
+  lines_known: number;
+  lines_traced: number;
+};
+
+/** Approved changes in order, with the questions each asked and the lines it already knew from the memoir. */
+export async function getReplay(db: NeonQueryFunction<false, false> = defaultSql): Promise<ReplayRow[]> {
+  const rows = await db`
+    SELECT c.id AS change_id, c.title,
+      (SELECT count(*) FROM questions q WHERE q.change_id = c.id)::int AS questions_asked,
+      (SELECT count(*) FROM trace_lines t JOIN clauses cl ON cl.id = t.clause_id
+        WHERE cl.change_id = c.id AND t.state = 'known')::int AS lines_known,
+      (SELECT count(DISTINCT (t.program, t.line_no)) FROM trace_lines t JOIN clauses cl ON cl.id = t.clause_id
+        WHERE cl.change_id = c.id)::int AS lines_traced
+    FROM changes c
+    WHERE EXISTS (SELECT 1 FROM drafts d WHERE d.change_id = c.id AND d.state = 'approved')
+    ORDER BY c.created_at
+  `;
+  return (rows as ReplayRow[]).map((r) => ({ ...r, change_id: Number(r.change_id) }));
 }
