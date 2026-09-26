@@ -81,8 +81,8 @@ export async function DraftTab({
           <section aria-labelledby="reasons">
             <h2 id="reasons" className="display text-[28px] leading-[1.2]">Why each line</h2>
             <ul className="mt-6 space-y-4">
-              {draft.reasons.map((r) => (
-                <ReasonRow key={`${r.file}:${r.line_no}:${r.action}`} reason={r} />
+              {groupReasons(draft.reasons).map((g) => (
+                <ReasonRow key={g.key} reason={g.reason} lines={g.lines} />
               ))}
             </ul>
           </section>
@@ -102,13 +102,36 @@ export async function DraftTab({
   );
 }
 
-function ReasonRow({ reason: r }: { reason: DraftReason }) {
+/** Merge reasons that share file, action, note, and clause into one row per range. */
+function groupReasons(reasons: DraftReason[]) {
+  const groups = new Map<string, { reason: DraftReason; nums: number[] }>();
+  const sorted = [...reasons].sort((a, b) => (a.action === b.action ? 0 : a.action === 'changed' ? -1 : 1) || a.line_no - b.line_no);
+  for (const r of sorted) {
+    const key = `${r.file}|${r.action}|${r.note_id ?? ''}|${r.clause_id ?? ''}`;
+    const g = groups.get(key) ?? { reason: r, nums: [] };
+    g.nums.push(r.line_no);
+    groups.set(key, g);
+  }
+  return [...groups.entries()].map(([key, g]) => {
+    const parts: string[] = [];
+    let start = g.nums[0];
+    let prev = start;
+    for (const n of [...g.nums.slice(1), Infinity]) {
+      if (n === prev + 1) { prev = n; continue; }
+      parts.push(start === prev ? `${start}` : `${start} to ${prev}`);
+      start = prev = n;
+    }
+    return { key, reason: g.reason, lines: `${g.nums.length > 1 ? 'lines' : 'line'} ${parts.join(', ')}` };
+  });
+}
+
+function ReasonRow({ reason: r, lines }: { reason: DraftReason; lines: string }) {
   const kept = r.action === 'kept';
   return (
     <li className={`rounded-panel p-5 sm:p-6 ${kept ? 'border-l-2 border-brass bg-ivory' : 'border-l-2 border-graphite bg-white'}`}>
       <div className="flex flex-wrap items-center gap-3">
         <StateTag state={kept ? 'kept' : 'changed'} />
-        <span className="font-mono text-[13px] text-steel">{r.file}, line {r.line_no}</span>
+        <span className="font-mono text-[13px] text-steel">{r.file}, {lines}</span>
       </div>
       {r.note_text && (
         <p className="mt-3 text-[17px] leading-[1.5]">
