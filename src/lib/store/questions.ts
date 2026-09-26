@@ -88,3 +88,35 @@ export async function getQuestionForExpert(
   const q = await getQuestion(question_id, db);
   return q && q.expert_id === expert_id ? q : null;
 }
+
+export type ChangeQuestion = {
+  id: number;
+  program: string;
+  line_start: number;
+  line_end: number;
+  question: string;
+  state: string;
+  created_at: string;
+  answered_at: string | null;
+  expert_name: string;
+  expert_token: string;
+  note_id: number | null;
+  note_text: string | null;
+};
+
+/** Every question for a change, with the expert and any saved answer. */
+export async function getQuestionsForChange(
+  change_id: number,
+  db: NeonQueryFunction<false, false> = defaultSql,
+): Promise<ChangeQuestion[]> {
+  const rows = await db`
+    SELECT q.id, q.program, q.line_start, q.line_end, q.question, q.state, q.created_at, q.answered_at,
+           e.name AS expert_name, e.token AS expert_token, n.id AS note_id, n.text AS note_text
+    FROM questions q
+    JOIN experts e ON e.id = q.expert_id
+    LEFT JOIN notes n ON n.question_id = q.id
+    WHERE q.change_id = ${change_id}
+    ORDER BY q.id
+  `;
+  return rows as ChangeQuestion[];
+}
