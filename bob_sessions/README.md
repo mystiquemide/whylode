@@ -5,6 +5,7 @@ Evidence of how IBM Bob built and runs Whylode.
 - `bob-task-history-2026-09-26.md`: the full exported task history from Bob IDE, every message and tool call.
 - `whylode_task01_mode_format_check.png`, `whylode_task02_data_layer.png`: task session summary screenshots.
 - `whylode_run1_ca_tax_change.jpg`: task session summary for recorded run 1, the California sales tax change (1.16 Bobcoins).
+- `whylode_run2_edi_810_change.jpg`: task session summary for recorded run 2, the EDI 810 tax detail change, where Bob reuses memoir notes (1.32 Bobcoins).
 
 ## Tasks
 
