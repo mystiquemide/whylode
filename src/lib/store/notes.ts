@@ -73,3 +73,38 @@ export async function memoirLookup(
   `;
   return rows as Array<{ id: number; line_start: number; line_end: number; text: string; author: string }>;
 }
+
+export type MemoirNote = {
+  id: number;
+  line_start: number;
+  line_end: number;
+  text: string;
+  author: string;
+  created_at: string;
+  change_id: number | null;
+  change_title: string | null;
+  reused_in: { id: number; title: string }[];
+};
+
+/** Notes for one program, each with the change it came from and any later change that reused it. */
+export async function getMemoirNotes(
+  program: string,
+  db: NeonQueryFunction<false, false> = defaultSql,
+): Promise<MemoirNote[]> {
+  const rows = await db`
+    SELECT n.id, n.line_start, n.line_end, n.text, n.author, n.created_at,
+           n.change_id, c.title AS change_title,
+           COALESCE((
+             SELECT json_agg(DISTINCT jsonb_build_object('id', c2.id, 'title', c2.title))
+             FROM trace_lines t
+             JOIN clauses cl ON cl.id = t.clause_id
+             JOIN changes c2 ON c2.id = cl.change_id
+             WHERE t.note_id = n.id AND t.state = 'known' AND c2.id <> n.change_id
+           ), '[]') AS reused_in
+    FROM notes n
+    LEFT JOIN changes c ON c.id = n.change_id
+    WHERE n.program = ${program}
+    ORDER BY n.line_start, n.id
+  `;
+  return rows as MemoirNote[];
+}
