@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Footer, Nav } from '@/components/site';
 import { Eyebrow, PrimaryLink, StateTag, TextLink } from '@/components/ui';
-import { getHeroProof, getRunSnapshot, type RunSnapshot } from '@/lib/store/landing';
+import { getHeroProof, getRunSnapshot, type HeroProof, type RunSnapshot } from '@/lib/store/landing';
 
 export const dynamic = 'force-dynamic';
 
@@ -113,6 +113,7 @@ export default async function Home() {
         </section>
 
         {run && <HowItWorks run={run} />}
+        {run?.diff && proof && <Proof run={run} proof={proof} />}
       </main>
       <Footer />
     </>
@@ -202,6 +203,55 @@ function HowItWorks({ run }: { run: RunSnapshot }) {
             </li>
           ))}
         </ol>
+      </div>
+    </section>
+  );
+}
+
+function Proof({ run, proof }: { run: RunSnapshot; proof: HeroProof }) {
+  return (
+    <section aria-labelledby="proof" className="pb-20 lg:pb-28">
+      <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
+        <div className="-mr-4 rounded-tl-[8px] bg-ash px-6 py-14 sm:-mr-6 sm:px-12 sm:py-20 xl:mr-[calc((1200px-100vw)/2-24px)]">
+          <Eyebrow>The proof</Eyebrow>
+          <h2 id="proof" className="display mt-5 max-w-3xl text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
+            The code had two rates. Only the owner knew which one was the{' '}
+            <span className="text-brass underline decoration-1 underline-offset-[6px]">state&apos;s</span>.
+          </h2>
+          <p className="mt-5 max-w-2xl text-[17px] leading-[1.5] text-steel">
+            Nothing in {proof.file} says what the second rate is for. Bob didn&apos;t guess. It asked, and the approved
+            change edits one line and leaves the other alone, with the owner&apos;s reason attached.
+          </p>
+
+          <div className="mt-12 grid gap-4 lg:grid-cols-2">
+            <article className="rounded-panel border-l-2 border-graphite bg-white p-6 sm:p-8">
+              <div className="flex flex-wrap items-center gap-3">
+                <StateTag state="changed" />
+                <span className="font-mono text-[13px] text-steel">{proof.file}, the state rate</span>
+              </div>
+              <p className="mt-5 font-mono text-[14px] text-slate line-through">{run.diff!.removed}</p>
+              <p className="mt-1 border-l-2 border-brass bg-ivory px-3 py-1 font-mono text-[14px]">{run.diff!.added}</p>
+              <p className="mt-5 text-[15px] leading-[1.5] text-steel">Changed because the notice raises the state rate.</p>
+            </article>
+            <article className="rounded-panel border-l-2 border-brass bg-ivory p-6 sm:p-8">
+              <div className="flex flex-wrap items-center gap-3">
+                <StateTag state="kept" />
+                <span className="font-mono text-[13px] text-steel">
+                  {proof.file}, line {proof.line_no}
+                </span>
+              </div>
+              <p className="mt-5 font-mono text-[14px]">{proof.code}</p>
+              <p className="mt-5 text-[17px] leading-[1.5]">
+                <span className="text-steel">Kept because the owner said: </span>&ldquo;{proof.note}&rdquo;
+              </p>
+              <p className="mt-3 text-[14px] text-brass">{proof.author}</p>
+            </article>
+          </div>
+
+          <div className="mt-8">
+            <TextLink href={`/changes/${proof.change_id}?tab=draft`}>See the approved change</TextLink>
+          </div>
+        </div>
       </div>
     </section>
   );

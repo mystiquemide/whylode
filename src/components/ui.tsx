@@ -49,7 +49,7 @@ export function StateTag({ state }: { state: LineState }) {
       : state === 'asked'
         ? 'bg-ash text-graphite ring-1 ring-inset ring-ember'
         : state === 'answered' || state === 'known' || state === 'kept'
-          ? 'bg-ivory text-brass'
+          ? 'bg-ivory text-brass ring-1 ring-inset ring-brass/35'
           : 'bg-ash text-graphite';
   return (
     <span className={`inline-flex items-center rounded-tag px-2.5 py-0.5 text-[13px] font-medium ${tone}`}>
