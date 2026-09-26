@@ -26,3 +26,9 @@ AGENTS.md
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# Internal planning docs
+docs/PRD.md
+docs/TASKS.md
+docs/WIN_PLAN.md
+memory.md

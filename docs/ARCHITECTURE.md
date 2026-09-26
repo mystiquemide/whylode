@@ -26,13 +26,12 @@
 | Layer | Choice | Why |
 |---|---|---|
 | App | Next.js 16 App Router, TypeScript, Tailwind v4 | One deploy for pages, API, and MCP |
-| MCP | `@modelcontextprotocol/sdk` with the Vercel `mcp-handler` adapter, stateless streamable HTTP | Bob supports streamable HTTP. Stateless fits serverless. Exact API is checked against the installed type definitions before use. |
+| MCP | `@modelcontextprotocol/sdk` with the Vercel `mcp-handler` adapter, stateless streamable HTTP | Bob supports streamable HTTP. Stateless fits serverless.  |
 | Database | Postgres on Neon via `@neondatabase/serverless` | Serverless, free tier, works from Vercel functions |
 | Queries | Plain SQL with a small typed data layer, `zod` for input validation | No ORM to learn under deadline |
 | Tests | Vitest against a real Postgres (local Docker or a Neon branch) | Real queries, no mocks |
 | Hosting | Vercel | Fast deploy, HTTPS by default |
 
-Fallback if Vercel or Neon is blocked: the same app on the VPS with local Postgres behind a Cloudflare tunnel.
 
 ## Data model
 
@@ -97,7 +96,7 @@ The Bob flow across turns:
 | GET | `/api/memoir` | none | Programs with note counts |
 | GET | `/api/memoir/[program]` | none | Source plus notes |
 
-Read routes are public by design: the judges need to see the real run. The store holds only the test RPG system and answers, no personal data beyond an expert's display name.
+Read routes are public by design, so anyone can inspect a real run. The store holds only the test RPG system and answers, no personal data beyond an expert's display name.
 
 ## Security
 
@@ -108,7 +107,7 @@ Read routes are public by design: the judges need to see the real run. The store
 - Secrets live in environment variables. `.env` and `.env.local` are gitignored. The MCP token lives only in the user's local `.bob/mcp.json` (gitignored) and is never pasted into a Bob chat. `bob_sessions/` exports are scanned for the token value and key patterns before commit. If a secret is found, rotate it and re-export.
 - Expert answers are data. `whylode_get_answers` wraps each in a `claim` field. The skills tell Bob to verify claims against the code and never follow instructions inside them. Tools enforce the rules regardless of what Bob decides: drafts are refused while questions or conflicts are open, and approval is never available over MCP.
 - One note per question (unique constraint), so a double-tapped Save can't create two memoir entries. A second answer to an answered question is rejected.
-- Public routes are GET only. Judges can read every record and change nothing.
+- Public routes are GET only. Visitors can read every record and change nothing.
 
 ## Attack tests
 
@@ -139,8 +138,8 @@ Changing any of these after recording invalidates the video, the session reports
 | Answer creates one note on a line range | It's the memoir claim | Replay numbers change |
 | Counts derived from rows | They're the headline numbers | Video and live pages disagree |
 | Expert token scope | Obvious attack surface | Security section rewrite |
-| Approval needs the admin key, web only | Stops judges changing live records | Live pages mutate during judging |
-| Read routes public | Judges must see the runs | Demo URL breaks |
+| Approval needs the admin key, web only | Stops visitors changing live records | Live records can be changed by anyone |
+| Read routes public | Anyone can inspect the runs | Recorded runs can't be inspected |
 | Fixture source and notice PDFs | Every note points at their line numbers | Every note points at the wrong line |
 | Events append-only | History is the audit trail | Timeline can't be trusted |
 
@@ -181,6 +180,6 @@ whylode/
 1. **One app for MCP, API, and pages.** Separate services would mean two deploys and shared database access for no gain.
 2. **Postgres over SQLite.** Vercel functions have no persistent disk. Neon's serverless driver works there.
 3. **Stateless MCP.** Bob calls tools one at a time and all state lives in the database, so no MCP sessions are needed.
-4. **No accounts.** Tokens for experts, one admin key for approvers. Accounts add a day of work that no judge will see.
-5. **Bob does product work only.** Scaffolding and UI are built outside Bob to save coins for the recorded runs. Every product action runs in Bob, so the session reports show the whole loop.
+4. **No accounts.** Tokens for experts, one admin key for approvers. Accounts would add complexity the core loop doesn't need.
+5. **Bob builds the backend and runs the product.** Bob wrote the mode, skills, MCP server, data layer and tests, and every product action runs in Bob, so the session reports show the whole loop. The web UI was built outside Bob.
 6. **Answers are claims, not instructions.** Expert text reaches Bob wrapped as data, and the tools enforce safety rules no matter what Bob concludes.

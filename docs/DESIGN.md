@@ -115,7 +115,7 @@ App screens use no photos. The code and the records are the imagery.
 
 | Route | Screen | Who uses it |
 |---|---|---|
-| `/` | Landing | Judges, buyers |
+| `/` | Landing | Visitors, buyers |
 | `/changes` | All rule changes | Developer, IT director |
 | `/changes/[id]` | One change: trace, questions, draft, approval | Developer, approver |
 | `/ask/[token]` | Expert inbox, no login | Retiring expert |
@@ -196,8 +196,8 @@ KEEP (Ash band, handover.jpg left)
   View the memoir >
 
 BUILT ON IBM BOB 2.0 (page background, text list)
-  Custom mode, skills, MCP tools, subagents, document understanding.
-  Built with IBM Bob for the IBM Bob 2.0 Hackathon. Session reports in bob_sessions/.
+  Custom mode, skills, MCP tools, document understanding.
+  Session reports in bob_sessions/.
 
 FINAL BAND (warehouse-stock.jpg, Graphite overlay at 60%)
   Someone at your company knows why. Ask them while you can.

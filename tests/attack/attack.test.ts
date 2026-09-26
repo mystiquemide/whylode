@@ -21,7 +21,6 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createTestDb, type TestDb } from '../helpers/testDb';
-import { upsertProgram } from '../../src/lib/store/programs';
 import { openChange, getChange } from '../../src/lib/store/changes';
 import { createExpert, getExpertByToken } from '../../src/lib/store/experts';
 import { answerQuestion, memoirLookup } from '../../src/lib/store/notes';
@@ -71,7 +70,7 @@ describe('attack tests', () => {
   // (data) and must not let it bypass safety rules.
 
   it('1: injection answer is wrapped in a claim field; draft still refused while conflict open', async () => {
-    const { change_id, clause_id } = await scaffold(tdb.sql);
+    const { change_id } = await scaffold(tdb.sql);
     const { question_ids } = await createExpert(
       change_id,
       'Attacker',
@@ -312,7 +311,7 @@ describe('attack tests', () => {
   // questions_asked and lines_reused must equal the counts derived from rows.
 
   it('11: questions_asked equals number of question rows for the change', async () => {
-    const { change_id, clause_id } = await scaffold(tdb.sql);
+    const { change_id } = await scaffold(tdb.sql);
     const { question_ids } = await createExpert(
       change_id,
       'Expert11',

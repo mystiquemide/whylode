@@ -10,7 +10,7 @@ An IBM Bob 2.0 mode for legacy code maintenance. Before Bob changes a rule in ol
 
 Workflow: application maintenance on IBM i.
 
-Many companies still run invoicing, tax and payroll on RPG written decades ago. The reasons behind that code live in the heads of people who are retiring. When a rule changes, such as a new tax rate, a developer has to find every line that implements it and decide which ones to touch.
+Many companies still run invoicing, tax and payroll on RPG written decades ago. The reasons behind that code live in the heads of people who are retiring. In Fortra's 2026 IBM i Marketplace Survey, [69% of IBM i shops named skills as a top concern](https://www.itjungle.com/2026/02/02/skills-displaces-cybersecurity-as-top-concern-for-ibm-i-shops/), ahead of cybersecurity for the first time in nine years. When a rule changes, such as a new tax rate, a developer has to find every line that implements it and decide which ones to touch.
 
 Code tools can show where a value lives, but not why it's there. On our sample system, the invoice program hardcodes two rates. One is the state rate. The other is a contract rate that must not change. Nothing in the code tells them apart, so a search-and-replace, or an AI agent working alone, can edit the wrong line. The cost shows up as wrong invoices, rework, and hours spent chasing the one person who remembers.
 
