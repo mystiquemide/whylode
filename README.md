@@ -2,6 +2,8 @@
 
 An IBM Bob 2.0 mode for legacy code maintenance. Before Bob changes a rule in old RPG code, it asks the owner about the lines it can't explain, and every line of the diff carries that reason.
 
+[![CI](https://github.com/mystiquemide/whylode/actions/workflows/ci.yml/badge.svg)](https://github.com/mystiquemide/whylode/actions/workflows/ci.yml)
+
 [Live app](https://whylode.vercel.app) · [A recorded run](https://whylode.vercel.app/changes/2?tab=draft) · [IBM Bob task sessions](bob_sessions/) · MIT
 
 ![The draft from run 1: one rate changed, two blocks kept, each with the owner's reason](docs/media/run1-draft.png)
