@@ -45,3 +45,18 @@ Wait for the developer to explicitly say the expert has responded.
   Combine related sub-questions into one well-formed question.
 - The expert link is single-use per token. Do not call `whylode_ask_expert`
   again for the same change unless the developer requests a reassignment.
+
+## Writing the question
+
+The expert reads each question on a phone, often someone who has been away
+from this code for years. Write for them:
+
+- 40 words or fewer. One plain question, not a summary of your analysis.
+- Name the thing you can't tell, for example "What does customer type C2 mean,
+  and should its 0.0525 rate follow state tax changes?"
+- No dashes used as punctuation, no ALL CAPS emphasis, no markdown.
+- Pass the exact line range. The page shows the real source lines itself, so
+  the `excerpt` only needs the one or two key lines.
+
+Change titles passed to `whylode_open_change` follow the same rules: short,
+plain, no dashes or arrows. Example: "California sales tax rate change".
