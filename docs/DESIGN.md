@@ -166,7 +166,7 @@ PROBLEM (Ash band, bleeds right)
   [■] The problem
   Nothing breaks until the rule changes.
   three rows, mist hairlines:
-  69%   of IBM i shops name skills as their top concern.   IT Jungle, Jan 2026 (source confirmed before launch)
+  69%   of IBM i shops name skills as their top concern.   Fortra 2026 IBM i Marketplace Survey, 315 respondents (via IT Jungle, Feb 2 2026)
   Rule  Tax rates, EDI formats, and month-end jobs change. Someone has to edit code nobody explained.
   Why   Documentation tools say what the code does. Nobody wrote down why.
   warehouse-aisle.jpg on the right

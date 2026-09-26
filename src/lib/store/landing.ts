@@ -35,3 +35,49 @@ export async function getHeroProof(db: NeonQueryFunction<false, false> = default
   const code = (pick.source.split('\n')[pick.line_no - 1] ?? '').trim().replace(/\s+/g, ' ');
   return { change_id: Number(pick.change_id), file: pick.file, line_no: pick.line_no, code, note: pick.note, author: pick.author };
 }
+
+export type RunSnapshot = {
+  change_id: number;
+  title: string;
+  traced: { file: string; line_no: number; confidence: number; code: string } | null;
+  question: { file: string; line_start: number; line_end: number; text: string } | null;
+  note: { file: string; line_start: number; line_end: number; text: string; author: string } | null;
+  diff: { removed: string; added: string } | null;
+  approved_by: string | null;
+};
+
+/** Real pieces of the most recently approved change, one per step of the workflow. */
+export async function getRunSnapshot(db: NeonQueryFunction<false, false> = defaultSql): Promise<RunSnapshot | null> {
+  const drafts = await db`
+    SELECT d.change_id, d.diff, d.decided_by, c.title FROM drafts d JOIN changes c ON c.id = d.change_id
+    WHERE d.state = 'approved' ORDER BY d.decided_at DESC LIMIT 1
+  `;
+  const d = drafts[0] as { change_id: number; diff: string; decided_by: string | null; title: string } | undefined;
+  if (!d) return null;
+  const change_id = Number(d.change_id);
+
+  const [traced, question, note] = await Promise.all([
+    db`SELECT t.program AS file, t.line_no, t.confidence, t.code FROM trace_lines t JOIN clauses c ON c.id = t.clause_id
+       WHERE c.change_id = ${change_id} AND t.state = 'traced' ORDER BY t.confidence DESC, t.line_no LIMIT 1`,
+    db`SELECT program AS file, line_start, line_end, question AS text FROM questions
+       WHERE change_id = ${change_id} ORDER BY id LIMIT 1`,
+    db`SELECT n.program AS file, n.line_start, n.line_end, n.text, n.author FROM notes n
+       JOIN questions q ON q.id = n.question_id WHERE n.change_id = ${change_id} ORDER BY q.id LIMIT 1`,
+  ]);
+
+  const lines = d.diff.split('\n');
+  const removed = lines.find((l) => l.startsWith('-') && !l.startsWith('---'));
+  const added = lines.find((l) => l.startsWith('+') && !l.startsWith('+++'));
+  const clean = (l: string) => l.slice(1).trim().replace(/\s+/g, ' ');
+  const t = traced[0] as { file: string; line_no: number; confidence: string; code: string } | undefined;
+
+  return {
+    change_id,
+    title: d.title,
+    traced: t ? { ...t, confidence: Number(t.confidence), code: t.code.trim().replace(/\s+/g, ' ') } : null,
+    question: (question[0] as RunSnapshot['question']) ?? null,
+    note: (note[0] as RunSnapshot['note']) ?? null,
+    diff: removed && added ? { removed: clean(removed), added: clean(added) } : null,
+    approved_by: d.decided_by,
+  };
+}
