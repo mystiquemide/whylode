@@ -56,6 +56,61 @@ export default async function Home() {
             )}
           </div>
         </section>
+
+        <section aria-labelledby="problem" className="pb-20 lg:pb-28">
+          <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
+            <div className="relative -mr-4 rounded-tl-[8px] bg-ash sm:-mr-6 xl:mr-[calc((1200px-100vw)/2-24px)]">
+              <div className="grid gap-12 px-6 py-14 sm:px-12 sm:py-20 lg:grid-cols-[1fr_360px] lg:gap-16">
+                <div>
+                  <Eyebrow>The problem</Eyebrow>
+                  <h2 id="problem" className="display mt-5 max-w-2xl text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
+                    Nothing breaks until the rule changes.
+                  </h2>
+                  <dl className="mt-12 max-w-2xl divide-y divide-mist border-y border-mist">
+                    <div className="grid gap-2 py-6 sm:grid-cols-[120px_1fr] sm:gap-8">
+                      <dt className="display text-[40px] leading-none text-brass">69%</dt>
+                      <dd className="text-[17px] leading-[1.5] text-steel">
+                        of IBM i shops name skills as a top concern, ahead of cybersecurity for the first time in nine
+                        years.
+                        <span className="mt-2 block text-[14px] text-slate">
+                          Fortra, 2026 IBM i Marketplace Survey, 315 respondents.{' '}
+                          <a
+                            href="https://www.itjungle.com/2026/02/02/skills-displaces-cybersecurity-as-top-concern-for-ibm-i-shops/"
+                            className="underline decoration-ember underline-offset-[3px] hover:text-graphite"
+                          >
+                            Source
+                          </a>
+                        </span>
+                      </dd>
+                    </div>
+                    <div className="grid gap-2 py-6 sm:grid-cols-[120px_1fr] sm:gap-8">
+                      <dt className="display text-[28px] leading-tight">Rules</dt>
+                      <dd className="text-[17px] leading-[1.5] text-steel">
+                        Tax rates, EDI formats, and month-end jobs keep changing. Every time, someone has to edit code that
+                        nobody ever explained.
+                      </dd>
+                    </div>
+                    <div className="grid gap-2 py-6 sm:grid-cols-[120px_1fr] sm:gap-8">
+                      <dt className="display text-[28px] leading-tight">Why</dt>
+                      <dd className="text-[17px] leading-[1.5] text-steel">
+                        Documentation tools can say what the code does. Nobody wrote down why it does it, and the person who
+                        knows is about to retire.
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+                <Image
+                  src="/images/warehouse-aisle.jpg"
+                  alt="A warehouse aisle with a forklift between tall racks"
+                  width={720}
+                  height={1080}
+                  sizes="(min-width: 1024px) 360px, 100vw"
+                  className="aspect-[4/5] w-full rounded-panel object-cover saturate-[0.85] lg:aspect-[2/3]"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </>
