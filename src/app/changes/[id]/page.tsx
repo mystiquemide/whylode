@@ -7,6 +7,7 @@ import { getChange, getClauses } from '@/lib/store/changes';
 import { getTraceLines } from '@/lib/store/trace';
 import { getProgramByName } from '@/lib/store/programs';
 import { getQuestionsForChange } from '@/lib/store/questions';
+import { DraftTab } from './draft-tab';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,7 @@ const STATUS_LABEL: Record<string, string> = {
   approved: 'Approved',
 };
 
-type Tab = 'trace' | 'questions';
+type Tab = 'trace' | 'questions' | 'draft';
 
 function formatDate(value: Date | string) {
   return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
@@ -34,10 +35,10 @@ export default async function ChangePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; notice?: string }>;
 }) {
   const { id } = await params;
-  const { tab: tabParam } = await searchParams;
+  const { tab: tabParam, notice } = await searchParams;
   const change_id = Number(id);
   if (!Number.isInteger(change_id) || change_id <= 0) notFound();
 
@@ -49,6 +50,7 @@ export default async function ChangePage({
   const TABS: { key: Tab; label: string }[] = [
     { key: 'trace', label: 'Trace' },
     { key: 'questions', label: openCount > 0 ? `Questions ${openCount}` : 'Questions' },
+    { key: 'draft', label: 'Draft' },
   ];
   const tab: Tab = TABS.some((t) => t.key === tabParam) ? (tabParam as Tab) : 'trace';
 
@@ -87,6 +89,7 @@ export default async function ChangePage({
         <div className="mt-10">
           {tab === 'trace' && <TraceTab changeId={change_id} />}
           {tab === 'questions' && <QuestionsTab questions={questions} />}
+          {tab === 'draft' && <DraftTab changeId={change_id} openQuestions={openCount} notice={notice} />}
         </div>
       </main>
       <Footer />
