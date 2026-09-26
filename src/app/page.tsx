@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Footer, Nav } from '@/components/site';
 import { Eyebrow, PrimaryLink, StateTag, TextLink } from '@/components/ui';
 import { getHeroProof, getRunSnapshot, type HeroProof, type RunSnapshot } from '@/lib/store/landing';
@@ -114,6 +115,9 @@ export default async function Home() {
 
         {run && <HowItWorks run={run} />}
         {run?.diff && proof && <Proof run={run} proof={proof} />}
+        <Keep />
+        <BuiltOnBob />
+        <FinalBand />
       </main>
       <Footer />
     </>
@@ -188,9 +192,9 @@ function HowItWorks({ run }: { run: RunSnapshot }) {
         </h2>
         <p className="mt-4 max-w-2xl text-[17px] leading-[1.5] text-steel">
           Every example below comes from a real run: {run.title}.{' '}
-          <a href={`/changes/${run.change_id}`} className="text-graphite underline decoration-ember underline-offset-[3px]">
+          <Link href={`/changes/${run.change_id}`} className="text-graphite underline decoration-ember underline-offset-[3px]">
             Open the full record
-          </a>
+          </Link>
           .
         </p>
         <ol className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
@@ -251,6 +255,106 @@ function Proof({ run, proof }: { run: RunSnapshot; proof: HeroProof }) {
           <div className="mt-8">
             <TextLink href={`/changes/${proof.change_id}?tab=draft`}>See the approved change</TextLink>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Keep() {
+  return (
+    <section aria-labelledby="keep" className="pb-20 lg:pb-28">
+      <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16">
+        <Image
+          src="/images/handover.jpg"
+          alt="Two colleagues reviewing work together on a laptop"
+          width={1200}
+          height={675}
+          sizes="(min-width: 1024px) 560px, 100vw"
+          className="aspect-[4/3] w-full rounded-panel object-cover saturate-[0.85]"
+        />
+        <div>
+          <Eyebrow>The memoir</Eyebrow>
+          <h2 id="keep" className="display mt-5 text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
+            Knowledge that outlives the handover.
+          </h2>
+          <p className="mt-5 max-w-xl text-[17px] leading-[1.5] text-steel">
+            Every answer is kept in plain language, pinned to the exact lines it explains. The next developer reads it
+            next to the code, and Bob checks it before asking the same question twice.
+          </p>
+          <div className="mt-8">
+            <TextLink href="/memoir">Read the memoir</TextLink>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const BOB_FEATURES = [
+  { name: 'Custom mode', text: 'Whylode runs as its own Bob mode, with its role and rules.' },
+  { name: 'Skills', text: 'Trace, ask, and draft skills tell Bob exactly how to handle a change.' },
+  { name: 'MCP tools', text: 'Eight tools connect Bob to the change record, the questions, and the memoir.' },
+  { name: 'Document understanding', text: 'Bob reads the change notice PDF directly and splits it into clauses.' },
+];
+
+function BuiltOnBob() {
+  const repo = 'https://github.com/mystiquemide/whylode';
+  return (
+    <section aria-labelledby="bob" className="pb-20 lg:pb-28">
+      <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
+        <div className="border-t border-graphite pt-10">
+          <div className="flex flex-wrap items-center gap-3">
+            <Image src="/partners/ibm-bob.svg" alt="" width={40} height={40} />
+            <p className="text-[22px]">
+              IBM <span className="font-semibold">Bob</span>
+            </p>
+          </div>
+          <h2 id="bob" className="display mt-6 max-w-3xl text-[32px] leading-[1.15] sm:text-[40px]">
+            Built on IBM Bob 2.0. Bob does the work, people keep the say.
+          </h2>
+          <dl className="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+            {BOB_FEATURES.map((f) => (
+              <div key={f.name}>
+                <dt className="text-[15px] font-medium">{f.name}</dt>
+                <dd className="mt-1.5 text-[14px] leading-[1.5] text-steel">{f.text}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-10 text-[15px] text-steel">
+            Every Bob task behind this project is in the repository.{' '}
+            <a href={`${repo}/tree/main/bob_sessions`} className="text-graphite underline decoration-ember underline-offset-[3px]">
+              Session reports
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalBand() {
+  return (
+    <section aria-labelledby="final" className="relative isolate overflow-hidden">
+      <Image
+        src="/images/warehouse-stock.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        className="-z-10 object-cover object-center saturate-[0.85]"
+      />
+      <div className="absolute inset-0 -z-10 bg-graphite/60" />
+      <div className="mx-auto w-full max-w-[1200px] px-4 py-24 sm:px-6 lg:py-36">
+        <h2 id="final" className="display max-w-3xl text-[40px] leading-[1.05] text-white sm:text-[56px] sm:leading-[1.0]">
+          Someone at your company knows why. Ask them while you can.
+        </h2>
+        <div className="mt-10">
+          <Link
+            href="/changes"
+            className="inline-flex items-center justify-center rounded-pill bg-white px-5 py-2.5 text-[15px] font-medium text-graphite hover:bg-page"
+          >
+            See a real run
+          </Link>
         </div>
       </div>
     </section>

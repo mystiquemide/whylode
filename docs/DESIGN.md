@@ -100,7 +100,7 @@ Real photos, Unsplash License, free tier only. Photos are atmosphere and are nev
 | `public/images/hero-expert.jpg` | photo-1758612898338-4eb032a133f5 | Vitaly Gariev | Landing hero, right column |
 | `public/images/handover.jpg` | photo-1758519288814-bb9f97e4df95 | Vitaly Gariev | Keep section |
 | `public/images/warehouse-aisle.jpg` | photo-1740914994657-f1cdffdc418e | Kseniia Ilinykh | Problem section |
-| `public/images/warehouse-floor.jpg` | photo-1781559818983-c32838ee3d55 | Rodrigo Rodrigues | Final band |
+| `public/images/warehouse-stock.jpg` | photo-1721937127582-ed331de95a04 | Ashley | Final band |
 
 App screens use no photos. The code and the records are the imagery.
 
@@ -199,7 +199,7 @@ BUILT ON IBM BOB 2.0 (page background, text list)
   Custom mode, skills, MCP tools, subagents, document understanding.
   Built with IBM Bob for the IBM Bob 2.0 Hackathon. Session reports in bob_sessions/.
 
-FINAL BAND (warehouse-floor.jpg, Graphite overlay at 55% under text only)
+FINAL BAND (warehouse-stock.jpg, Graphite overlay at 60%)
   Someone at your company knows why. Ask them while you can.
   [See a real run]   (white pill, Graphite text)
 
