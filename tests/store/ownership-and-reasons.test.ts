@@ -42,3 +42,28 @@ describe('expert ownership and draft reasons', () => {
     expect(draft!.reasons.find((r) => r.line_no === 30)!.action).toBe('changed');
   });
 });
+
+describe('draft decisions', () => {
+  let tdb: TestDb;
+  beforeAll(async () => { tdb = await createTestDb(); });
+  afterAll(async () => { await tdb.teardown(); });
+
+  it('decides a pending draft once and refuses while a conflict is open', async () => {
+    const { decideDraft } = await import('@/lib/store/drafts');
+    const { flagConflict, reviewConflict } = await import('@/lib/store/conflicts');
+    const { change_id } = await openChange('decide', 'n.pdf', ['c'], tdb.sql);
+    const { question_ids } = await createExpert(change_id, 'Owner', [
+      { program: 'P.rpgle', line_start: 1, line_end: 1, excerpt: 'x', question: 'q' },
+    ], tdb.sql);
+    const { note_id } = await answerQuestion(question_ids[0], 'a', 'Owner', tdb.sql);
+    await submitDraft(change_id, '--- a\n+++ b\n', [], tdb.sql);
+
+    const { conflict_id } = await flagConflict(change_id, note_id, 'claim', 'code', tdb.sql);
+    await expect(decideDraft(change_id, 'approved', 'Lead', tdb.sql)).rejects.toThrow(/conflict/);
+    await reviewConflict(conflict_id, tdb.sql);
+
+    await decideDraft(change_id, 'approved', 'Lead', tdb.sql);
+    expect((await getDraft(change_id, tdb.sql))!.state).toBe('approved');
+    await expect(decideDraft(change_id, 'changes_requested', 'Lead', tdb.sql)).rejects.toThrow(/already/);
+  });
+});

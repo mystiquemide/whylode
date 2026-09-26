@@ -94,3 +94,35 @@ export async function getDraft(
   `;
   return { ...draft, reasons: reasons as DraftReason[] };
 }
+
+/**
+ * Approve or request changes on a change's latest draft. Only a pending draft
+ * can be decided, and never while a conflict is open.
+ */
+export async function decideDraft(
+  change_id: number,
+  decision: 'approved' | 'changes_requested',
+  decided_by: string,
+  db: NeonQueryFunction<false, false> = defaultSql,
+): Promise<{ draft_id: number }> {
+  const draft = await getDraft(change_id, db);
+  if (!draft) throw new Error('There is no draft for this change yet.');
+  if (draft.state !== 'pending') throw new Error('This draft has already been decided.');
+
+  const open = await db`
+    SELECT id FROM conflicts WHERE change_id = ${change_id} AND state = 'open' LIMIT 1
+  `;
+  if (open.length > 0) throw new Error('Review the open conflict before deciding.');
+
+  await db`
+    UPDATE drafts SET state = ${decision}, decided_by = ${decided_by}, decided_at = now()
+    WHERE id = ${draft.id}
+  `;
+  await insertEvent(
+    change_id,
+    decision === 'approved' ? 'draft_approved' : 'draft_changes_requested',
+    { draft_id: draft.id, decided_by },
+    db,
+  );
+  return { draft_id: draft.id };
+}

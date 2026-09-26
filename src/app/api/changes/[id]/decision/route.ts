@@ -1,6 +1,4 @@
-import { getDraft, approveDraft } from '@/lib/store/drafts';
-import { insertEvent } from '@/lib/store/events';
-import { sql } from '@/lib/db';
+import { decideDraft } from '@/lib/store/drafts';
 import { NextRequest, NextResponse } from 'next/server';
 
 function adminOk(req: NextRequest): boolean {
@@ -37,18 +35,10 @@ export async function POST(
     );
   }
 
-  const draft = await getDraft(change_id);
-  if (!draft) return NextResponse.json({ error: 'No draft found for this change' }, { status: 404 });
-
-  if (decision === 'approved') {
-    await approveDraft(draft.id, decided_by);
-  } else {
-    await sql`
-      UPDATE drafts SET state = 'changes_requested', decided_by = ${decided_by}, decided_at = now()
-      WHERE id = ${draft.id}
-    `;
-    await insertEvent(change_id, 'draft_changes_requested', { draft_id: draft.id, decided_by });
+  try {
+    const { draft_id } = await decideDraft(change_id, decision, decided_by);
+    return NextResponse.json({ ok: true, draft_id, decision });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Decision failed' }, { status: 409 });
   }
-
-  return NextResponse.json({ ok: true, draft_id: draft.id, decision });
 }
