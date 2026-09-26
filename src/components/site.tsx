@@ -31,7 +31,6 @@ export function Footer() {
           <a href={REPO} className="hover:text-graphite">GitHub</a>
           <a href={`${REPO}/tree/main/bob_sessions`} className="hover:text-graphite">Session reports</a>
         </div>
-        <p className="text-slate">Built with IBM Bob for the IBM Bob 2.0 Hackathon</p>
       </div>
     </footer>
   );

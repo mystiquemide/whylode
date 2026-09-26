@@ -130,7 +130,7 @@ NAV (page background, no border)
                         ^ Ash pill container, 200px radius        ^ Graphite pill
 
 FOOTER (page background, mist top hairline)
-whylode   Changes  Memoir  GitHub  Session reports         Built with IBM Bob for the IBM Bob 2.0 Hackathon
+whylode   Changes  Memoir  GitHub  Session reports
 ```
 
 - Eyebrow: 8px Ember square, then 13px Brass label. Example: `[■] Rule change`.
