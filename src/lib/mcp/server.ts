@@ -11,7 +11,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { z } from 'zod';
 import { upsertProgram } from '../store/programs';
-import { openChange, getClauses } from '../store/changes';
+import { openChange } from '../store/changes';
 import { memoirLookup } from '../store/notes';
 import { recordTrace } from '../store/trace';
 import { createExpert } from '../store/experts';

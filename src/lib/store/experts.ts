@@ -68,15 +68,18 @@ export async function getExpertQuestions(
   excerpt: string;
   question: string;
   state: string;
+  answer: string | null;
 }>> {
   const rows = await db`
-    SELECT id, program, line_start, line_end, excerpt, question, state
-    FROM questions
-    WHERE expert_id = ${expert_id}
-    ORDER BY id
+    SELECT q.id, q.program, q.line_start, q.line_end, q.excerpt, q.question, q.state,
+           n.text AS answer
+    FROM questions q
+    LEFT JOIN notes n ON n.question_id = q.id
+    WHERE q.expert_id = ${expert_id}
+    ORDER BY q.id
   `;
   return rows as Array<{
     id: number; program: string; line_start: number; line_end: number;
-    excerpt: string; question: string; state: string;
+    excerpt: string; question: string; state: string; answer: string | null;
   }>;
 }
