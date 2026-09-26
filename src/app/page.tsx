@@ -2,12 +2,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Footer, Nav } from '@/components/site';
 import { Eyebrow, PrimaryLink, StateTag, TextLink } from '@/components/ui';
-import { getHeroProof, getRunSnapshot, type HeroProof, type RunSnapshot } from '@/lib/store/landing';
+import { getHeroProof, getRunSnapshot, realRunHref, type HeroProof, type RunSnapshot } from '@/lib/store/landing';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const [proof, run] = await Promise.all([getHeroProof().catch(() => null), getRunSnapshot().catch(() => null)]);
+  const [proof, run, runHref] = await Promise.all([
+    getHeroProof().catch(() => null),
+    getRunSnapshot().catch(() => null),
+    realRunHref(),
+  ]);
 
   return (
     <>
@@ -25,7 +29,7 @@ export default async function Home() {
               person who knows why, and keeps the answer.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-6">
-              <PrimaryLink href="/changes">See a real run</PrimaryLink>
+              <PrimaryLink href={runHref}>See a real run</PrimaryLink>
               <TextLink href="/memoir">View the memoir</TextLink>
             </div>
           </div>
@@ -117,7 +121,7 @@ export default async function Home() {
         {run?.diff && proof && <Proof run={run} proof={proof} />}
         <Keep />
         <BuiltOnBob />
-        <FinalBand />
+        <FinalBand href={runHref} />
       </main>
       <Footer />
     </>
@@ -333,7 +337,7 @@ function BuiltOnBob() {
   );
 }
 
-function FinalBand() {
+function FinalBand({ href }: { href: string }) {
   return (
     <section aria-labelledby="final" className="relative isolate overflow-hidden">
       <Image
@@ -350,7 +354,7 @@ function FinalBand() {
         </h2>
         <div className="mt-10">
           <Link
-            href="/changes"
+            href={href}
             className="inline-flex items-center justify-center rounded-pill bg-white px-5 py-2.5 text-[15px] font-medium text-graphite hover:bg-page"
           >
             See a real run

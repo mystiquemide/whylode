@@ -1,21 +1,24 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { PrimaryLink } from './ui';
+import { NavLinks, RealRunButton } from './nav-links';
+import { realRunHref } from '@/lib/store/landing';
 
 const REPO = 'https://github.com/mystiquemide/whylode';
 
-export function Nav() {
+export async function Nav() {
+  const runHref = await realRunHref();
   return (
-    <header className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 px-4 py-6 sm:px-6">
-      <Link href="/" aria-label="Whylode home">
-        <Image src="/brand/logo.svg" alt="Whylode" width={125} height={32} priority />
-      </Link>
-      <nav className="hidden items-center gap-6 rounded-pill bg-ash px-5 py-2 text-[15px] md:flex">
-        <Link href="/changes" className="hover:text-steel">Changes</Link>
-        <Link href="/memoir" className="hover:text-steel">Memoir</Link>
-        <Link href="/#how" className="hover:text-steel">How it works</Link>
-      </nav>
-      <PrimaryLink href="/changes">See a real run</PrimaryLink>
+    <header className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6">
+      <div className="flex items-center justify-between gap-4 md:grid md:grid-cols-[1fr_auto_1fr]">
+        <Link href="/" aria-label="Whylode home">
+          <Image src="/brand/logo.svg" alt="Whylode" width={125} height={32} priority />
+        </Link>
+        <NavLinks className="hidden md:flex" />
+        <div className="flex justify-end">
+          <RealRunButton href={runHref} />
+        </div>
+      </div>
+      <NavLinks className="mt-4 flex w-fit md:hidden" />
     </header>
   );
 }

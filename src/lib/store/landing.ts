@@ -81,3 +81,14 @@ export async function getRunSnapshot(db: NeonQueryFunction<false, false> = defau
     approved_by: d.decided_by,
   };
 }
+
+/** The most recently approved change, the one "See a real run" should open. */
+export async function getLatestApprovedChangeId(db: NeonQueryFunction<false, false> = defaultSql): Promise<number | null> {
+  const rows = await db`SELECT change_id FROM drafts WHERE state = 'approved' ORDER BY decided_at DESC LIMIT 1`;
+  return rows[0] ? Number((rows[0] as { change_id: number }).change_id) : null;
+}
+
+export async function realRunHref(): Promise<string> {
+  const id = await getLatestApprovedChangeId().catch(() => null);
+  return id ? `/changes/${id}?tab=draft` : '/changes';
+}
