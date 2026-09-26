@@ -3,8 +3,8 @@ import { sql as defaultSql } from '../db';
 import { insertEvent } from './events';
 
 /**
- * Old-file line numbers the diff removes or replaces, per file basename.
- * A reason on one of these lines is "changed"; any other reason is "kept".
+ * Old-file line numbers the diff removes, replaces, or inserts after, per file basename.
+ * A reason on one of these lines is "changed", any other reason is "kept".
  */
 export function changedLinesFromDiff(diff: string): Map<string, Set<number>> {
   const out = new Map<string, Set<number>>();
@@ -24,7 +24,11 @@ export function changedLinesFromDiff(diff: string): Map<string, Set<number>> {
       out.get(file)!.add(oldLine);
       oldLine++;
     } else if (line.startsWith('+')) {
-      // Added lines have no old-file number.
+      // An insertion changes the old line it follows.
+      if (oldLine > 1) {
+        if (!out.has(file)) out.set(file, new Set());
+        out.get(file)!.add(oldLine - 1);
+      }
     } else {
       oldLine++;
     }

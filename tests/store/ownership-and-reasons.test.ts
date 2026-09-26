@@ -85,4 +85,10 @@ describe('reason actions come from the diff', () => {
     const map = changedLinesFromDiff(diff);
     expect([...map.get('INVCALC.rpgle')!]).toEqual([30]);
   });
+
+  it('counts an insertion as a change to the line it follows', async () => {
+    const { changedLinesFromDiff } = await import('@/lib/store/drafts');
+    const diff = ['--- a/INVCALC.rpgle', '+++ b/INVCALC.rpgle', '@@ -25,3 +25,4 @@', ' PARM TaxAmt', ' PARM ErrFlag', '+PARM TaxRate', ' *'].join('\n');
+    expect([...changedLinesFromDiff(diff).get('INVCALC.rpgle')!]).toEqual([26]);
+  });
 });
