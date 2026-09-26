@@ -31,7 +31,8 @@ describe('expert ownership and draft reasons', () => {
       { program: 'INVCALC.rpgle', line_start: 39, line_end: 44, excerpt: 'x', question: 'what is C2?' },
     ], tdb.sql);
     const { note_id } = await answerQuestion(question_ids[0], 'contract rate, leave it', 'Owner', tdb.sql);
-    await submitDraft(change_id, '--- a\n+++ b\n', [
+    const diff = '--- a/INVCALC.rpgle\n+++ b/INVCALC.rpgle\n@@ -30,1 +30,1 @@\n-EVAL TaxRate = 0.0725\n+EVAL TaxRate = 0.0750\n';
+    await submitDraft(change_id, diff, [
       { file: 'INVCALC.rpgle', line_no: 30, clause_id: clause_ids[0], action: 'changed' },
       { file: 'INVCALC.rpgle', line_no: 44, note_id, action: 'kept' },
     ], tdb.sql);
@@ -65,5 +66,23 @@ describe('draft decisions', () => {
     await decideDraft(change_id, 'approved', 'Lead', tdb.sql);
     expect((await getDraft(change_id, tdb.sql))!.state).toBe('approved');
     await expect(decideDraft(change_id, 'changes_requested', 'Lead', tdb.sql)).rejects.toThrow(/already/);
+  });
+});
+
+describe('reason actions come from the diff', () => {
+  it('marks only lines the diff edits as changed', async () => {
+    const { changedLinesFromDiff } = await import('@/lib/store/drafts');
+    const diff = [
+      '--- a/fixtures/rpg/INVCALC.rpgle',
+      '+++ b/fixtures/rpg/INVCALC.rpgle',
+      '@@ -28,7 +28,7 @@',
+      '       *',
+      '       * Set rate',
+      '-     C                   EVAL      TaxRate  = 0.0725',
+      '+     C                   EVAL      TaxRate  = 0.0750',
+      '       *',
+    ].join('\n');
+    const map = changedLinesFromDiff(diff);
+    expect([...map.get('INVCALC.rpgle')!]).toEqual([30]);
   });
 });

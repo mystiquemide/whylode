@@ -2,6 +2,36 @@ import { NeonQueryFunction } from '@neondatabase/serverless';
 import { sql as defaultSql } from '../db';
 import { insertEvent } from './events';
 
+/**
+ * Old-file line numbers the diff removes or replaces, per file basename.
+ * A reason on one of these lines is "changed"; any other reason is "kept".
+ */
+export function changedLinesFromDiff(diff: string): Map<string, Set<number>> {
+  const out = new Map<string, Set<number>>();
+  let file = '';
+  let oldLine = 0;
+  for (const line of diff.split('\n')) {
+    if (line.startsWith('--- ')) {
+      file = line.slice(4).trim().replace(/^a\//, '').split('/').pop() ?? '';
+      continue;
+    }
+    if (line.startsWith('+++ ')) continue;
+    const hunk = line.match(/^@@ -(\d+)/);
+    if (hunk) { oldLine = Number(hunk[1]); continue; }
+    if (!file || oldLine === 0) continue;
+    if (line.startsWith('-')) {
+      if (!out.has(file)) out.set(file, new Set());
+      out.get(file)!.add(oldLine);
+      oldLine++;
+    } else if (line.startsWith('+')) {
+      // Added lines have no old-file number.
+    } else {
+      oldLine++;
+    }
+  }
+  return out;
+}
+
 export async function submitDraft(
   change_id: number,
   diff: string,
@@ -29,10 +59,13 @@ export async function submitDraft(
   `;
   const draft_id = (draftRows[0] as { id: number }).id;
 
+  // The diff decides what changed. Reasons on untouched lines are kept lines.
+  const changed = changedLinesFromDiff(diff);
   for (const r of reasons) {
     const note_id = r.note_id ?? null;
     const clause_id = r.clause_id ?? null;
-    const action = r.action ?? 'changed';
+    const base = r.file.split('/').pop() ?? r.file;
+    const action = changed.get(base)?.has(r.line_no) ? 'changed' : 'kept';
     await db`
       INSERT INTO draft_reasons (draft_id, file, line_no, note_id, clause_id, action)
       VALUES (${draft_id}, ${r.file}, ${r.line_no}, ${note_id}, ${clause_id}, ${action})
