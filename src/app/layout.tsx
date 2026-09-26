@@ -29,7 +29,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${interTight.variable} ${plexMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${interTight.variable} ${plexMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Marks JS as available before first paint, so motion never hides content without it. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

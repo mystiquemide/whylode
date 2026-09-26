@@ -53,3 +53,43 @@ body {
     transition: background-color 400ms ease-out, border-color 400ms ease-out;
   }
 }
+
+/* ---------- Motion ----------
+   Everything below only applies when the visitor allows motion and JS is running
+   (the `js` class is set before first paint). Without either, content is static. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes draw {
+    from { text-decoration-color: transparent; }
+    to { text-decoration-color: var(--brass); }
+  }
+  @keyframes settle {
+    0%, 35% { border-color: var(--ember); background-color: var(--white); }
+    100% { border-color: var(--brass); background-color: var(--ivory); }
+  }
+  @keyframes tag-swap-out { 0%, 40% { opacity: 1; } 55%, 100% { opacity: 0; } }
+  @keyframes tag-swap-in { 0%, 45% { opacity: 0; } 60%, 100% { opacity: 1; } }
+
+  .js .rise { opacity: 0; animation: rise 800ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards; }
+  .js .rise-1 { animation-delay: 80ms; }
+  .js .rise-2 { animation-delay: 200ms; }
+  .js .rise-3 { animation-delay: 320ms; }
+  .js .rise-4 { animation-delay: 460ms; }
+  .js .rise-5 { animation-delay: 620ms; }
+  .js .draw { animation: draw 900ms ease-out 900ms both; }
+
+  .js .settle { animation: settle 2400ms ease-out 900ms both; }
+  .js .tag-out { animation: tag-swap-out 2400ms ease-out 900ms both; }
+  .js .tag-in { animation: tag-swap-in 2400ms ease-out 900ms both; }
+
+  .reveal-ready [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(24px); transition: opacity 800ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 800ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+  [data-reveal] { transition: opacity 800ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 800ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+  .reveal-ready .photo-zoom:not(.is-in) img { transform: scale(1.04); transition: transform 1600ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .photo-zoom img { transition: transform 1600ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+  a, button { transition-property: color, background-color, text-decoration-color; transition-duration: 180ms; }
+}

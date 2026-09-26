@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Footer, Nav } from '@/components/site';
 import { Eyebrow, PrimaryLink, StateTag, TextLink } from '@/components/ui';
+import { CountUp, Reveal } from '@/components/motion';
 import { getHeroProof, getReplay, getRunSnapshot, realRunHref, type HeroProof, type ReplayRow, type RunSnapshot } from '@/lib/store/landing';
 
 export const dynamic = 'force-dynamic';
@@ -20,22 +21,25 @@ export default async function Home() {
       <main className="flex-1">
         <section className="mx-auto grid w-full max-w-[1200px] gap-12 px-4 pb-20 pt-10 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16 lg:pb-28 lg:pt-16">
           <div>
-            <Eyebrow>For IBM i teams</Eyebrow>
+            <div className="rise rise-1"><Eyebrow>For IBM i teams</Eyebrow></div>
             <h1 className="display mt-6 text-[44px] leading-[1.0] sm:text-[66px] sm:leading-[0.95]">
-              The code survived. The reason didn&apos;t. Keep the{' '}
-              <span className="text-brass underline decoration-1 underline-offset-[8px]">why</span>.
+              <span className="rise rise-1 inline-block">The code survived.</span>{' '}
+              <span className="rise rise-2 inline-block">The reason didn&apos;t.</span>{' '}
+              <span className="rise rise-3 inline-block">
+                Keep the <span className="draw text-brass underline decoration-1 underline-offset-[8px]">why</span>.
+              </span>
             </h1>
-            <p className="mt-8 max-w-xl text-[18px] leading-[1.5] text-steel">
+            <p className="rise rise-4 mt-8 max-w-xl text-[18px] leading-[1.5] text-steel">
               Whylode runs inside IBM Bob. When a rule changes, it traces every line that has to change, asks the one
               person who knows why, and keeps the answer.
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-6">
+            <div className="rise rise-5 mt-10 flex flex-wrap items-center gap-6">
               <PrimaryLink href={runHref}>See a real run</PrimaryLink>
               <TextLink href="/memoir">View the memoir</TextLink>
             </div>
           </div>
 
-          <div className="relative lg:pb-20">
+          <div className="rise rise-2 relative lg:pb-20">
             <Image
               src="/images/hero-expert.jpg"
               alt="An experienced developer working on a laptop"
@@ -51,9 +55,12 @@ export default async function Home() {
                   <p className="font-mono text-[13px] text-steel">
                     {proof.file}, line {proof.line_no}
                   </p>
-                  <StateTag state="kept" />
+                  <span className="relative inline-grid">
+                    <span className="tag-out col-start-1 row-start-1 opacity-0"><StateTag state="asked" /></span>
+                    <span className="tag-in col-start-1 row-start-1"><StateTag state="kept" /></span>
+                  </span>
                 </div>
-                <p className="mt-2 border-l-2 border-brass bg-ivory px-3 py-1.5 font-mono text-[13px]">{proof.code}</p>
+                <p className="settle mt-2 border-l-2 border-brass bg-ivory px-3 py-1.5 font-mono text-[13px]">{proof.code}</p>
                 <blockquote className="mt-3 text-[15px] leading-[1.5]">&ldquo;{proof.note}&rdquo;</blockquote>
                 <figcaption className="mt-2 text-[13px] text-brass">
                   {proof.author}, the system owner. From a recorded run.
@@ -65,7 +72,7 @@ export default async function Home() {
 
         <section aria-labelledby="problem" className="pb-20 lg:pb-28">
           <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
-            <div className="relative -mr-4 rounded-tl-[8px] bg-ash sm:-mr-6 xl:mr-[calc((1200px-100vw)/2-24px)]">
+            <Reveal className="relative -mr-4 rounded-tl-[8px] bg-ash sm:-mr-6 xl:mr-[calc((1200px-100vw)/2-24px)]">
               <div className="grid gap-12 px-6 py-14 sm:px-12 sm:py-20 lg:grid-cols-[1fr_360px] lg:gap-16">
                 <div>
                   <Eyebrow>The problem</Eyebrow>
@@ -114,7 +121,7 @@ export default async function Home() {
                   className="aspect-[4/5] w-full rounded-panel object-cover saturate-[0.85] lg:aspect-[2/3]"
                 />
               </div>
-            </div>
+            </Reveal>
           </div>
         </section>
 
@@ -192,6 +199,7 @@ function HowItWorks({ run }: { run: RunSnapshot }) {
   return (
     <section id="how" aria-labelledby="how-heading" className="scroll-mt-8 pb-20 lg:pb-28">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
+        <Reveal>
         <Eyebrow>How it works</Eyebrow>
         <h2 id="how-heading" className="display mt-5 max-w-3xl text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
           Four steps, all inside IBM Bob.
@@ -203,14 +211,15 @@ function HowItWorks({ run }: { run: RunSnapshot }) {
           </Link>
           .
         </p>
+        </Reveal>
         <ol className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-          {steps.map((s) => (
-            <li key={s.n} className="border-t border-graphite pt-5">
+          {steps.map((s, i) => (
+            <Reveal as="li" key={s.n} delay={i * 120} className="border-t border-graphite pt-5">
               <p className="font-mono text-[13px] text-brass">{s.n}</p>
               <h3 className="display mt-2 text-[28px] leading-tight">{s.name}</h3>
               <p className="mt-3 text-[15px] leading-[1.5] text-steel">{s.text}</p>
               {s.snippet && <Snippet>{s.snippet}</Snippet>}
-            </li>
+            </Reveal>
           ))}
         </ol>
       </div>
@@ -222,7 +231,7 @@ function Proof({ run, proof }: { run: RunSnapshot; proof: HeroProof }) {
   return (
     <section aria-labelledby="proof" className="pb-20 lg:pb-28">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
-        <div className="-mr-4 rounded-tl-[8px] bg-ash px-6 py-14 sm:-mr-6 sm:px-12 sm:py-20 xl:mr-[calc((1200px-100vw)/2-24px)]">
+        <Reveal className="-mr-4 rounded-tl-[8px] bg-ash px-6 py-14 sm:-mr-6 sm:px-12 sm:py-20 xl:mr-[calc((1200px-100vw)/2-24px)]">
           <Eyebrow>The proof</Eyebrow>
           <h2 id="proof" className="display mt-5 max-w-3xl text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
             The code had two rates. Only the owner knew which one was the{' '}
@@ -261,7 +270,7 @@ function Proof({ run, proof }: { run: RunSnapshot; proof: HeroProof }) {
           <div className="mt-8">
             <TextLink href={`/changes/${proof.change_id}?tab=draft`}>See the approved change</TextLink>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -271,6 +280,7 @@ function Keep() {
   return (
     <section aria-labelledby="keep" className="pb-20 lg:pb-28">
       <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16">
+        <Reveal className="photo-zoom overflow-hidden rounded-panel">
         <Image
           src="/images/handover.jpg"
           alt="Two colleagues reviewing work together on a laptop"
@@ -279,7 +289,8 @@ function Keep() {
           sizes="(min-width: 1024px) 560px, 100vw"
           className="aspect-[4/3] w-full rounded-panel object-cover saturate-[0.85]"
         />
-        <div>
+        </Reveal>
+        <Reveal delay={150}>
           <Eyebrow>The memoir</Eyebrow>
           <h2 id="keep" className="display mt-5 text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
             Knowledge that outlives the handover.
@@ -291,7 +302,7 @@ function Keep() {
           <div className="mt-8">
             <TextLink href="/memoir">Read the memoir</TextLink>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -309,7 +320,7 @@ function BuiltOnBob() {
   return (
     <section aria-labelledby="bob" className="pb-20 lg:pb-28">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
-        <div className="border-t border-graphite pt-10">
+        <Reveal className="border-t border-graphite pt-10">
           <div className="flex flex-wrap items-center gap-3">
             <Image src="/partners/ibm-bob.svg" alt="" width={40} height={40} />
             <p className="text-[22px]">
@@ -333,7 +344,7 @@ function BuiltOnBob() {
               Session reports
             </a>
           </p>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -350,7 +361,7 @@ function FinalBand({ href }: { href: string }) {
         className="-z-10 object-cover object-center saturate-[0.85]"
       />
       <div className="absolute inset-0 -z-10 bg-graphite/60" />
-      <div className="mx-auto w-full max-w-[1200px] px-4 py-24 sm:px-6 lg:py-36">
+      <Reveal className="mx-auto w-full max-w-[1200px] px-4 py-24 sm:px-6 lg:py-36">
         <h2 id="final" className="display max-w-3xl text-[40px] leading-[1.05] text-white sm:text-[56px] sm:leading-[1.0]">
           Someone at your company knows why. Ask them while you can.
         </h2>
@@ -362,7 +373,7 @@ function FinalBand({ href }: { href: string }) {
             See a real run
           </Link>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
@@ -373,6 +384,7 @@ function Replay({ rows }: { rows: ReplayRow[] }) {
   return (
     <section aria-labelledby="replay" className="pb-20 lg:pb-28">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
+        <Reveal>
         <Eyebrow>The next change</Eyebrow>
         <h2 id="replay" className="display mt-5 max-w-3xl text-[36px] leading-[1.1] sm:text-[48px] sm:leading-[1.05]">
           Nobody gets asked the same thing twice.
@@ -381,6 +393,7 @@ function Replay({ rows }: { rows: ReplayRow[] }) {
           The second change touched the same tax code. Bob found {known} {known === 1 ? 'line' : 'lines'} already explained
           in the memoir and only asked about what was new.
         </p>
+        </Reveal>
         <ol className="mt-12 divide-y divide-mist border-y border-mist">
           {[first, ...later].map((r, i) => (
             <li key={r.change_id}>
@@ -392,13 +405,14 @@ function Replay({ rows }: { rows: ReplayRow[] }) {
                 <span className="display text-[22px] leading-[1.3] sm:text-[24px]">{r.title}</span>
                 <span className="flex flex-wrap gap-x-8 gap-y-1 text-[15px]">
                   <span>
-                    <span className="display text-[28px] leading-none">{r.questions_asked}</span>{' '}
+                    <CountUp value={r.questions_asked} className="display text-[28px] leading-none" />{' '}
                     <span className="text-steel">{r.questions_asked === 1 ? 'question' : 'questions'}</span>
                   </span>
                   <span>
-                    <span className={`display text-[28px] leading-none ${r.lines_known > 0 ? 'text-brass' : ''}`}>
-                      {r.lines_known}
-                    </span>{' '}
+                    <CountUp
+                      value={r.lines_known}
+                      className={`display text-[28px] leading-none ${r.lines_known > 0 ? 'text-brass' : ''}`}
+                    />{' '}
                     <span className="text-steel">{r.lines_known === 1 ? 'line already known' : 'lines already known'}</span>
                   </span>
                 </span>
