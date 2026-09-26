@@ -6,6 +6,7 @@ import { CodeBlock, Eyebrow, StateTag, type CodeLine, type LineState } from '@/c
 import { getChange, getClauses } from '@/lib/store/changes';
 import { getTraceLines } from '@/lib/store/trace';
 import { getProgramByName } from '@/lib/store/programs';
+import { getQuestionsForChange } from '@/lib/store/questions';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,8 +17,7 @@ const STATUS_LABEL: Record<string, string> = {
   approved: 'Approved',
 };
 
-type Tab = 'trace';
-const TABS: { key: Tab; label: string }[] = [{ key: 'trace', label: 'Trace' }];
+type Tab = 'trace' | 'questions';
 
 function formatDate(value: Date | string) {
   return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
@@ -44,6 +44,12 @@ export default async function ChangePage({
   const change = await getChange(change_id);
   if (!change) notFound();
 
+  const questions = await getQuestionsForChange(change_id);
+  const openCount = questions.filter((q) => q.state === 'open').length;
+  const TABS: { key: Tab; label: string }[] = [
+    { key: 'trace', label: 'Trace' },
+    { key: 'questions', label: openCount > 0 ? `Questions ${openCount}` : 'Questions' },
+  ];
   const tab: Tab = TABS.some((t) => t.key === tabParam) ? (tabParam as Tab) : 'trace';
 
   return (
@@ -78,7 +84,10 @@ export default async function ChangePage({
           ))}
         </nav>
 
-        <div className="mt-10">{tab === 'trace' && <TraceTab changeId={change_id} />}</div>
+        <div className="mt-10">
+          {tab === 'trace' && <TraceTab changeId={change_id} />}
+          {tab === 'questions' && <QuestionsTab questions={questions} />}
+        </div>
       </main>
       <Footer />
     </>
@@ -149,6 +158,45 @@ async function TraceTab({ changeId }: { changeId: number }) {
         );
       })}
     </div>
+  );
+}
+
+function QuestionsTab({ questions }: { questions: Awaited<ReturnType<typeof getQuestionsForChange>> }) {
+  if (questions.length === 0) {
+    return <p className="text-steel">Bob didn&apos;t need to ask anyone. Every traced line was clear from the code.</p>;
+  }
+  return (
+    <ol className="space-y-6">
+      {questions.map((q, i) => {
+        const lines = q.line_start === q.line_end ? `line ${q.line_start}` : `lines ${q.line_start} to ${q.line_end}`;
+        const state: LineState = q.state === 'answered' ? 'answered' : 'asked';
+        return (
+          <li key={q.id} className={`rounded-panel bg-white p-6 sm:p-8 ${q.state === 'answered' ? 'border-l-2 border-brass' : 'border-l-2 border-ember'}`}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="font-mono text-[13px] text-steel">
+                Q{i + 1}  {q.program}, {lines}
+              </p>
+              {q.state === 'reassigned' ? (
+                <span className="rounded-tag bg-ash px-2.5 py-0.5 text-[13px] font-medium">Sent to someone else</span>
+              ) : (
+                <StateTag state={state} />
+              )}
+            </div>
+            <p className="mt-3 max-w-3xl text-[17px] leading-[1.5]">{q.question}</p>
+            {q.state === 'answered' && q.note_text ? (
+              <div className="mt-5 rounded-panel bg-ivory p-5">
+                <p className="text-[17px] leading-[1.5]">&ldquo;{q.note_text}&rdquo;</p>
+                <p className="mt-3 text-[14px] text-brass">
+                  {q.expert_name}, {q.answered_at ? formatDate(q.answered_at) : ''}
+                </p>
+              </div>
+            ) : q.state === 'open' ? (
+              <p className="mt-4 text-[14px] text-slate">Waiting on {q.expert_name} since {formatDate(q.created_at)}.</p>
+            ) : null}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
