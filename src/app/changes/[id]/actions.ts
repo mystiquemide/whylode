@@ -11,7 +11,7 @@ function back(changeId: number, notice?: string): never {
 
 export async function signInAction(changeId: number, form: FormData) {
   const name = String(form.get('name') ?? '').trim().slice(0, 80);
-  const key = String(form.get('key') ?? '');
+  const key = String(form.get('key') ?? '').trim();
   if (!name || !keyMatches(key)) back(changeId, 'signin-failed');
   await startApproverSession(name);
   back(changeId);
