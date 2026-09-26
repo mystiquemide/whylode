@@ -1,11 +1,17 @@
 import { baseUrl } from "@/lib/base-url";
 import type { Metadata } from "next";
-import { Inter, IBM_Plex_Mono } from "next/font/google";
+import { Inter, Inter_Tight, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -23,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${plexMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${interTight.variable} ${plexMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
