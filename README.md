@@ -73,7 +73,22 @@ A change notice arrived: fixtures/notices/ca-tax-notice.pdf.
 The system is in fixtures/rpg/. The system owner is <name>. Handle this change.
 ```
 
-Architecture: one Next.js app on Vercel serves the MCP endpoint, the API and the pages, backed by Postgres on Neon. There are 39 tests, run against a real test database. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+## Architecture
+
+```mermaid
+flowchart LR
+    Bob[IBM Bob IDE<br/>Whylode mode + skills] -- MCP over HTTPS, bearer token --> App
+    Owner["Owner's phone<br/>/ask/token link"] -- answers --> App
+    Approver[Approver<br/>web app + admin key] -- approve diff --> App
+    subgraph App[Next.js app on Vercel]
+        MCP["/api/mcp<br/>8 tools"]
+        API["/api/* JSON API"]
+        Pages[Pages]
+    end
+    App --> DB[(Postgres on Neon<br/>changes, questions, memoir, drafts)]
+```
+
+One app serves the MCP endpoint, the API and the pages. There are 39 tests, run against a real test database. Details in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Limits
 
